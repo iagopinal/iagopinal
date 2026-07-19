@@ -1,0 +1,937 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Estimate monthly mortgage payments, total interest, and amortization over the life of a home loan.">
+  <meta name="theme-color" content="#0f5c46">
+  <link rel="canonical" href="https://www.iagopinal.com/apps/mortgage-calculator/">
+  <title>Mortgage Calculator | Iago Pinal-Fernandez</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --accent: #18765b;
+      --accent-strong: #0f5c46;
+      --accent-soft: #e6f5ef;
+      --background: #eef4f2;
+      --surface: #ffffff;
+      --surface-muted: #f4f8f6;
+      --border: #d7e2dd;
+      --text: #17241f;
+      --muted: #56645e;
+      --danger: #b42318;
+      --tax: #ce7c1d;
+      --insurance: #7367b7;
+      --hoa: #71808a;
+      --shadow: 0 18px 55px rgba(24, 70, 54, 0.12);
+      --focus: rgba(24, 118, 91, 0.2);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-width: 320px;
+      margin: 0;
+      background: var(--background);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    a {
+      color: var(--accent-strong);
+    }
+
+    .skip-link {
+      position: fixed;
+      z-index: 10;
+      top: 0.5rem;
+      left: 0.5rem;
+      padding: 0.65rem 0.9rem;
+      border-radius: 0.5rem;
+      background: var(--surface);
+      color: var(--text);
+      transform: translateY(-180%);
+    }
+
+    .skip-link:focus {
+      transform: translateY(0);
+    }
+
+    .site-header {
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .site-nav {
+      display: flex;
+      width: min(1180px, calc(100% - 2rem));
+      min-height: 4.2rem;
+      margin: 0 auto;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .brand,
+    .back-link {
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .brand {
+      color: var(--text);
+    }
+
+    .back-link {
+      color: var(--accent-strong);
+      font-size: 0.9rem;
+    }
+
+    .page-shell {
+      width: min(1180px, calc(100% - 2rem));
+      margin: 0 auto;
+      padding: 3rem 0 4rem;
+    }
+
+    .app-intro {
+      max-width: 780px;
+      margin-bottom: 2rem;
+    }
+
+    .eyebrow {
+      margin: 0 0 0.45rem;
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 750;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0 0 0.6rem;
+      font-size: clamp(2rem, 6vw, 3.7rem);
+      letter-spacing: -0.045em;
+      line-height: 1.05;
+    }
+
+    .app-intro p:last-child {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.08rem;
+    }
+
+    .calculator-card {
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 1.25rem;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .calculator-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    }
+
+    .calculator-form,
+    .calculator-results {
+      padding: 2rem;
+    }
+
+    .calculator-fields {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.15rem;
+    }
+
+    .calculator-field-wide {
+      grid-column: 1 / -1;
+    }
+
+    .calculator-field label {
+      display: block;
+      margin-bottom: 0.4rem;
+      font-size: 0.92rem;
+      font-weight: 680;
+    }
+
+    .input-wrap {
+      display: flex;
+      align-items: stretch;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 0.7rem;
+      background: var(--surface-muted);
+      transition: border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .input-wrap:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 0.22rem var(--focus);
+    }
+
+    .input-affix {
+      display: grid;
+      min-width: 2.8rem;
+      padding: 0 0.65rem;
+      place-items: center;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    input,
+    select,
+    button {
+      font: inherit;
+    }
+
+    input,
+    select {
+      width: 100%;
+      min-width: 0;
+      min-height: 2.9rem;
+      padding: 0.65rem 0.8rem;
+      border: 1px solid var(--border);
+      border-radius: 0.7rem;
+      background: var(--surface-muted);
+      color: var(--text);
+    }
+
+    .input-wrap input {
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+    }
+
+    .input-wrap input:focus {
+      outline: 0;
+    }
+
+    select:focus {
+      border-color: var(--accent);
+      outline: 0;
+      box-shadow: 0 0 0 0.22rem var(--focus);
+    }
+
+    .field-help {
+      margin: 0.35rem 0 0;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .calculator-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+
+    .button {
+      min-height: 2.8rem;
+      padding: 0.65rem 1rem;
+      border: 1px solid transparent;
+      border-radius: 0.7rem;
+      font-weight: 750;
+      cursor: pointer;
+      transition: transform 150ms ease;
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+    }
+
+    .button:focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    .button-primary {
+      background: var(--accent-strong);
+      color: #ffffff;
+    }
+
+    .button-secondary {
+      border-color: var(--border);
+      background: transparent;
+      color: var(--text);
+    }
+
+    .calculator-error {
+      margin: 1rem 0 0;
+      color: var(--danger);
+      font-weight: 650;
+    }
+
+    .calculator-note {
+      margin: 1rem 0 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .calculator-results {
+      background: var(--surface-muted);
+    }
+
+    .results-label {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 750;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    .monthly-payment {
+      display: block;
+      margin: 0.2rem 0 1.4rem;
+      color: var(--accent-strong);
+      font-size: clamp(2.2rem, 7vw, 3.65rem);
+      font-weight: 780;
+      letter-spacing: -0.05em;
+      line-height: 1.05;
+    }
+
+    .payment-breakdown,
+    .loan-summary {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+
+    .stat {
+      padding: 0.9rem;
+      border: 1px solid var(--border);
+      border-radius: 0.8rem;
+      background: var(--surface);
+    }
+
+    .stat span,
+    .stat output {
+      display: block;
+    }
+
+    .stat span {
+      margin-bottom: 0.2rem;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .stat output {
+      font-size: 1.05rem;
+      font-weight: 750;
+    }
+
+    .payment-chart {
+      margin: 1.25rem 0 1.6rem;
+    }
+
+    .payment-bar {
+      display: flex;
+      height: 0.85rem;
+      overflow: hidden;
+      border-radius: 999px;
+      background: var(--border);
+    }
+
+    .payment-principal,
+    .payment-tax,
+    .payment-insurance,
+    .payment-hoa {
+      transition: width 240ms ease;
+    }
+
+    .payment-principal {
+      background: var(--accent);
+    }
+
+    .payment-tax {
+      background: var(--tax);
+    }
+
+    .payment-insurance {
+      background: var(--insurance);
+    }
+
+    .payment-hoa {
+      background: var(--hoa);
+    }
+
+    .payment-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem 1rem;
+      margin-top: 0.55rem;
+      color: var(--muted);
+      font-size: 0.76rem;
+    }
+
+    .payment-legend span::before {
+      display: inline-block;
+      width: 0.62rem;
+      height: 0.62rem;
+      margin-right: 0.35rem;
+      border-radius: 50%;
+      background: var(--accent);
+      content: "";
+    }
+
+    .payment-legend .tax-key::before {
+      background: var(--tax);
+    }
+
+    .payment-legend .insurance-key::before {
+      background: var(--insurance);
+    }
+
+    .payment-legend .hoa-key::before {
+      background: var(--hoa);
+    }
+
+    h2 {
+      margin: 1.5rem 0 0.7rem;
+      font-size: 1rem;
+    }
+
+    .projection-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 0.8rem;
+      background: var(--surface);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-variant-numeric: tabular-nums;
+    }
+
+    th,
+    td {
+      padding: 0.65rem 0.8rem;
+      border-bottom: 1px solid var(--border);
+      text-align: right;
+    }
+
+    th:first-child,
+    td:first-child {
+      text-align: left;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 0.7rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .site-footer {
+      padding: 1.25rem 1rem 2.5rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      text-align: center;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --accent: #6fd0ae;
+        --accent-strong: #9de2ca;
+        --accent-soft: #153b30;
+        --background: #171b19;
+        --surface: #202622;
+        --surface-muted: #29302c;
+        --border: #46534c;
+        --text: #f1f6f3;
+        --muted: #b5c2bb;
+        --danger: #ffaca5;
+        --tax: #e3a04e;
+        --insurance: #aaa0e4;
+        --hoa: #93a0a8;
+        --shadow: 0 18px 55px rgba(0, 0, 0, 0.28);
+        --focus: rgba(111, 208, 174, 0.24);
+      }
+
+      .button-primary {
+        color: #10231c;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .page-shell {
+        padding-top: 2rem;
+      }
+
+      .calculator-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .calculator-results {
+        border-top: 1px solid var(--border);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .site-nav,
+      .page-shell {
+        width: min(100% - 1.2rem, 1180px);
+      }
+
+      .brand {
+        max-width: 12rem;
+      }
+
+      .calculator-card {
+        border-radius: 0.9rem;
+      }
+
+      .calculator-form,
+      .calculator-results {
+        padding: 1.15rem;
+      }
+
+      .calculator-fields,
+      .payment-breakdown,
+      .loan-summary {
+        grid-template-columns: 1fr;
+      }
+
+      .calculator-actions {
+        flex-direction: column;
+      }
+
+      .button {
+        width: 100%;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      .button,
+      .payment-principal,
+      .payment-tax,
+      .payment-insurance,
+      .payment-hoa {
+        transition: none;
+      }
+    }
+  </style>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6194699946397512"
+       crossorigin="anonymous"></script>
+</head>
+<body>
+  <a class="skip-link" href="#calculator">Skip to calculator</a>
+
+  <header class="site-header">
+    <nav class="site-nav" aria-label="App navigation">
+      <a class="brand" href="/">Iago Pinal-Fernandez</a>
+      <a class="back-link" href="/apps.html"><span aria-hidden="true">←</span> All apps</a>
+    </nav>
+  </header>
+
+  <main class="page-shell" id="main-content">
+    <header class="app-intro">
+      <p class="eyebrow">Home finance tool</p>
+      <h1>Mortgage Calculator</h1>
+      <p>Estimate your monthly housing payment, lifetime loan cost, and remaining mortgage balance over time.</p>
+    </header>
+
+    <section class="calculator-card" id="calculator" aria-label="Mortgage calculator">
+      <div class="calculator-layout">
+        <form class="calculator-form" id="mortgage-form">
+          <div class="calculator-fields">
+            <div class="calculator-field">
+              <label for="home-price">Home price</label>
+              <div class="input-wrap">
+                <span class="input-affix" aria-hidden="true">$</span>
+                <input id="home-price" name="home-price" type="number" min="1" max="1000000000" step="1" value="500000" inputmode="numeric" required>
+              </div>
+            </div>
+
+            <div class="calculator-field">
+              <label for="down-payment">Down payment</label>
+              <div class="input-wrap">
+                <span class="input-affix" aria-hidden="true">$</span>
+                <input id="down-payment" name="down-payment" type="number" min="0" max="999999999" step="1" value="100000" inputmode="numeric" aria-describedby="down-payment-help" required>
+              </div>
+              <p class="field-help" id="down-payment-help">Must be less than the home price.</p>
+            </div>
+
+            <div class="calculator-field">
+              <label for="interest-rate">Annual interest rate</label>
+              <div class="input-wrap">
+                <input id="interest-rate" name="interest-rate" type="number" min="0" max="100" step="0.01" value="6.5" inputmode="decimal" required>
+                <span class="input-affix" aria-hidden="true">%</span>
+              </div>
+            </div>
+
+            <div class="calculator-field">
+              <label for="loan-term">Loan term</label>
+              <select id="loan-term" name="loan-term">
+                <option value="10">10 years</option>
+                <option value="15">15 years</option>
+                <option value="20">20 years</option>
+                <option value="25">25 years</option>
+                <option value="30" selected>30 years</option>
+              </select>
+            </div>
+
+            <div class="calculator-field">
+              <label for="property-tax">Annual property tax</label>
+              <div class="input-wrap">
+                <span class="input-affix" aria-hidden="true">$</span>
+                <input id="property-tax" name="property-tax" type="number" min="0" max="100000000" step="1" value="6000" inputmode="numeric" required>
+              </div>
+            </div>
+
+            <div class="calculator-field">
+              <label for="home-insurance">Annual home insurance</label>
+              <div class="input-wrap">
+                <span class="input-affix" aria-hidden="true">$</span>
+                <input id="home-insurance" name="home-insurance" type="number" min="0" max="100000000" step="1" value="1800" inputmode="numeric" required>
+              </div>
+            </div>
+
+            <div class="calculator-field calculator-field-wide">
+              <label for="hoa-fee">Monthly HOA fee</label>
+              <div class="input-wrap">
+                <span class="input-affix" aria-hidden="true">$</span>
+                <input id="hoa-fee" name="hoa-fee" type="number" min="0" max="10000000" step="1" value="0" inputmode="numeric" required>
+              </div>
+            </div>
+          </div>
+
+          <div class="calculator-actions">
+            <button class="button button-primary" type="submit">Calculate payment</button>
+            <button class="button button-secondary" type="reset">Reset</button>
+          </div>
+
+          <p class="calculator-error" id="calculator-error" role="alert" hidden></p>
+          <p class="calculator-note">This estimate assumes a fixed-rate loan and unchanged taxes, insurance, and HOA fees. It excludes mortgage insurance, closing costs, maintenance, and other expenses.</p>
+        </form>
+
+        <div class="calculator-results" aria-labelledby="results-heading">
+          <p class="results-label" id="results-heading">Estimated monthly payment</p>
+          <output class="monthly-payment" id="monthly-payment" for="home-price down-payment interest-rate loan-term property-tax home-insurance hoa-fee">$3,178.27</output>
+
+          <div class="payment-breakdown">
+            <div class="stat">
+              <span>Principal &amp; interest</span>
+              <output id="principal-interest">$2,528.27</output>
+            </div>
+            <div class="stat">
+              <span>Property tax</span>
+              <output id="monthly-tax">$500.00</output>
+            </div>
+            <div class="stat">
+              <span>Home insurance</span>
+              <output id="monthly-insurance">$150.00</output>
+            </div>
+            <div class="stat">
+              <span>HOA fee</span>
+              <output id="monthly-hoa">$0.00</output>
+            </div>
+          </div>
+
+          <div class="payment-chart" aria-label="Monthly payment composition">
+            <div class="payment-bar" aria-hidden="true">
+              <span class="payment-principal" id="bar-principal"></span>
+              <span class="payment-tax" id="bar-tax"></span>
+              <span class="payment-insurance" id="bar-insurance"></span>
+              <span class="payment-hoa" id="bar-hoa"></span>
+            </div>
+            <div class="payment-legend">
+              <span>Principal &amp; interest</span>
+              <span class="tax-key">Property tax</span>
+              <span class="insurance-key">Insurance</span>
+              <span class="hoa-key">HOA</span>
+            </div>
+          </div>
+
+          <h2>Loan summary</h2>
+          <div class="loan-summary">
+            <div class="stat">
+              <span>Loan amount</span>
+              <output id="loan-amount">$400,000.00</output>
+            </div>
+            <div class="stat">
+              <span>Down payment</span>
+              <output id="down-payment-percent">20.0%</output>
+            </div>
+            <div class="stat">
+              <span>Total interest</span>
+              <output id="total-interest">$510,177.95</output>
+            </div>
+            <div class="stat">
+              <span>Total estimated outlay</span>
+              <output id="total-outlay">$1,244,177.95</output>
+            </div>
+          </div>
+
+          <h2>Cumulative amortization</h2>
+          <div class="projection-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Year</th>
+                  <th scope="col">Principal paid</th>
+                  <th scope="col">Interest paid</th>
+                  <th scope="col">Balance</th>
+                </tr>
+              </thead>
+              <tbody id="amortization-body"></tbody>
+            </table>
+          </div>
+
+          <p class="visually-hidden" id="calculator-status" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+
+    <noscript><p class="calculator-error">Enable JavaScript to use this calculator.</p></noscript>
+  </main>
+
+  <footer class="site-footer">A browser-based tool by Iago Pinal-Fernandez.</footer>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const form = document.querySelector("#mortgage-form");
+      const homePriceInput = document.querySelector("#home-price");
+      const downPaymentInput = document.querySelector("#down-payment");
+      const rateInput = document.querySelector("#interest-rate");
+      const termInput = document.querySelector("#loan-term");
+      const propertyTaxInput = document.querySelector("#property-tax");
+      const insuranceInput = document.querySelector("#home-insurance");
+      const hoaInput = document.querySelector("#hoa-fee");
+      const monthlyPaymentOutput = document.querySelector("#monthly-payment");
+      const principalInterestOutput = document.querySelector("#principal-interest");
+      const monthlyTaxOutput = document.querySelector("#monthly-tax");
+      const monthlyInsuranceOutput = document.querySelector("#monthly-insurance");
+      const monthlyHoaOutput = document.querySelector("#monthly-hoa");
+      const loanAmountOutput = document.querySelector("#loan-amount");
+      const downPaymentPercentOutput = document.querySelector("#down-payment-percent");
+      const totalInterestOutput = document.querySelector("#total-interest");
+      const totalOutlayOutput = document.querySelector("#total-outlay");
+      const principalBar = document.querySelector("#bar-principal");
+      const taxBar = document.querySelector("#bar-tax");
+      const insuranceBar = document.querySelector("#bar-insurance");
+      const hoaBar = document.querySelector("#bar-hoa");
+      const amortizationBody = document.querySelector("#amortization-body");
+      const errorMessage = document.querySelector("#calculator-error");
+      const statusMessage = document.querySelector("#calculator-status");
+
+      const currency = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+
+      const percentage = new Intl.NumberFormat("en-US", {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1
+      });
+
+      const readInputs = () => ({
+        homePrice: Number.parseInt(homePriceInput.value, 10),
+        downPayment: Number.parseInt(downPaymentInput.value, 10),
+        annualRate: Number.parseFloat(rateInput.value) / 100,
+        termYears: Number.parseInt(termInput.value, 10),
+        annualTax: Number.parseInt(propertyTaxInput.value, 10),
+        annualInsurance: Number.parseInt(insuranceInput.value, 10),
+        monthlyHoa: Number.parseInt(hoaInput.value, 10)
+      });
+
+      const calculateMortgage = (values) => {
+        const loanAmount = values.homePrice - values.downPayment;
+        const totalMonths = values.termYears * 12;
+        const monthlyRate = values.annualRate / 12;
+        const growthFactor = Math.pow(1 + monthlyRate, totalMonths);
+        const principalAndInterest = monthlyRate === 0
+          ? loanAmount / totalMonths
+          : loanAmount * monthlyRate * growthFactor / (growthFactor - 1);
+        const monthlyTax = values.annualTax / 12;
+        const monthlyInsurance = values.annualInsurance / 12;
+        const monthlyPayment = principalAndInterest + monthlyTax + monthlyInsurance + values.monthlyHoa;
+        const totalInterest = principalAndInterest * totalMonths - loanAmount;
+        const totalOutlay = values.downPayment + monthlyPayment * totalMonths;
+
+        return {
+          loanAmount,
+          totalMonths,
+          monthlyRate,
+          principalAndInterest,
+          monthlyTax,
+          monthlyInsurance,
+          monthlyPayment,
+          totalInterest: Math.max(0, totalInterest),
+          totalOutlay
+        };
+      };
+
+      const inputsAreUsable = (values) =>
+        Number.isInteger(values.homePrice) &&
+        Number.isInteger(values.downPayment) &&
+        Number.isFinite(values.annualRate) &&
+        Number.isInteger(values.termYears) &&
+        Number.isInteger(values.annualTax) &&
+        Number.isInteger(values.annualInsurance) &&
+        Number.isInteger(values.monthlyHoa) &&
+        values.homePrice > 0 &&
+        values.downPayment >= 0 &&
+        values.downPayment < values.homePrice &&
+        values.annualRate >= 0 &&
+        values.termYears > 0 &&
+        values.annualTax >= 0 &&
+        values.annualInsurance >= 0 &&
+        values.monthlyHoa >= 0;
+
+      const validateDownPayment = () => {
+        const homePrice = Number.parseInt(homePriceInput.value, 10);
+        const downPayment = Number.parseInt(downPaymentInput.value, 10);
+        const invalid = Number.isFinite(homePrice) &&
+          Number.isFinite(downPayment) &&
+          downPayment >= homePrice;
+
+        downPaymentInput.setCustomValidity(
+          invalid ? "Down payment must be less than the home price." : ""
+        );
+      };
+
+      const milestoneYears = (termYears) => {
+        const milestones = [];
+
+        for (let year = 1; year <= termYears; year += 1) {
+          if (year === 1 || year === termYears || year % 5 === 0) {
+            milestones.push(year);
+          }
+        }
+
+        return milestones;
+      };
+
+      const renderAmortization = (values, mortgage) => {
+        const milestones = new Set(milestoneYears(values.termYears));
+        let balance = mortgage.loanAmount;
+        let principalPaid = 0;
+        let interestPaid = 0;
+
+        amortizationBody.replaceChildren();
+
+        for (let month = 1; month <= mortgage.totalMonths; month += 1) {
+          const interest = balance * mortgage.monthlyRate;
+          const principal = Math.min(mortgage.principalAndInterest - interest, balance);
+
+          balance = Math.max(0, balance - principal);
+          principalPaid += principal;
+          interestPaid += interest;
+
+          if (month % 12 === 0 && milestones.has(month / 12)) {
+            const row = document.createElement("tr");
+            const yearCell = document.createElement("td");
+            const principalCell = document.createElement("td");
+            const interestCell = document.createElement("td");
+            const balanceCell = document.createElement("td");
+
+            yearCell.textContent = (month / 12).toLocaleString("en-US");
+            principalCell.textContent = currency.format(principalPaid);
+            interestCell.textContent = currency.format(interestPaid);
+            balanceCell.textContent = currency.format(balance);
+            row.append(yearCell, principalCell, interestCell, balanceCell);
+            amortizationBody.append(row);
+          }
+        }
+      };
+
+      const render = (announce = false) => {
+        validateDownPayment();
+        const values = readInputs();
+
+        if (!form.checkValidity() || !inputsAreUsable(values)) {
+          return false;
+        }
+
+        const mortgage = calculateMortgage(values);
+        const downPaymentPercent = values.downPayment / values.homePrice * 100;
+        const paymentParts = [
+          mortgage.principalAndInterest,
+          mortgage.monthlyTax,
+          mortgage.monthlyInsurance,
+          values.monthlyHoa
+        ];
+        const paymentShares = paymentParts.map((part) =>
+          mortgage.monthlyPayment > 0 ? part / mortgage.monthlyPayment * 100 : 0
+        );
+
+        monthlyPaymentOutput.value = currency.format(mortgage.monthlyPayment);
+        principalInterestOutput.value = currency.format(mortgage.principalAndInterest);
+        monthlyTaxOutput.value = currency.format(mortgage.monthlyTax);
+        monthlyInsuranceOutput.value = currency.format(mortgage.monthlyInsurance);
+        monthlyHoaOutput.value = currency.format(values.monthlyHoa);
+        loanAmountOutput.value = currency.format(mortgage.loanAmount);
+        downPaymentPercentOutput.value = `${percentage.format(downPaymentPercent)}%`;
+        totalInterestOutput.value = currency.format(mortgage.totalInterest);
+        totalOutlayOutput.value = currency.format(mortgage.totalOutlay);
+        principalBar.style.width = `${paymentShares[0]}%`;
+        taxBar.style.width = `${paymentShares[1]}%`;
+        insuranceBar.style.width = `${paymentShares[2]}%`;
+        hoaBar.style.width = `${paymentShares[3]}%`;
+        renderAmortization(values, mortgage);
+        errorMessage.hidden = true;
+        errorMessage.textContent = "";
+
+        if (announce) {
+          statusMessage.textContent = `Estimated monthly payment: ${currency.format(mortgage.monthlyPayment)}. Loan amount: ${currency.format(mortgage.loanAmount)}. Total interest: ${currency.format(mortgage.totalInterest)}.`;
+        }
+
+        return true;
+      };
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        if (!form.reportValidity() || !render(true)) {
+          errorMessage.textContent = "Please enter valid values in all fields.";
+          errorMessage.hidden = false;
+        }
+      });
+
+      form.addEventListener("input", () => render(false));
+      form.addEventListener("change", () => render(false));
+      form.addEventListener("reset", () => {
+        window.setTimeout(() => {
+          validateDownPayment();
+          render(true);
+        }, 0);
+      });
+
+      render(false);
+    })();
+  </script>
+</body>
+</html>
