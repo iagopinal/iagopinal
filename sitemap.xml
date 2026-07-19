@@ -14,7 +14,11 @@
   </url>
   <url>
     <loc>https://www.iagopinal.com/apps.html</loc>
-    <lastmod>2026-07-19T05:22:14.909Z</lastmod>
+    <lastmod>2026-07-19T05:44:18.820Z</lastmod>
+  </url>
+  <url>
+    <loc>https://www.iagopinal.com/apps/calendar/</loc>
+    <lastmod>2026-07-19T05:45:41.500Z</lastmod>
   </url>
   <url>
     <loc>https://www.iagopinal.com/apps/compound-interest/</loc>
@@ -31,5 +35,13 @@
   <url>
     <loc>https://www.iagopinal.com/apps/scientific-calculator/</loc>
     <lastmod>2026-07-19T04:50:17.186Z</lastmod>
+  </url>
+  <url>
+    <loc>https://www.iagopinal.com/apps/time-zone-converter/</loc>
+    <lastmod>2026-07-19T05:45:41.569Z</lastmod>
+  </url>
+  <url>
+    <loc>https://www.iagopinal.com/apps/todo-list/</loc>
+    <lastmod>2026-07-19T05:45:41.579Z</lastmod>
   </url>
 </urlset>

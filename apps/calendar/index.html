@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A printable calendar with month, week, and hourly day views plus selectable common holiday calendars.">
+  <meta name="theme-color" content="#f5efe4">
+  <link rel="canonical" href="https://www.iagopinal.com/apps/calendar/">
+  <title>Calendar | Iago Pinal-Fernandez</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper:#fffdf8; --background:#f3eee5; --ink:#25221d; --muted:#746f66;
+      --line:#dcd4c8; --accent:#a64d2e; --accent-soft:#f7e5dc; --blue:#315f78;
+      --today:#fff1b8; --outside:#f4f0e9; --shadow:0 24px 70px rgba(60,48,32,.13);
+    }
+    * { box-sizing:border-box; }
+    body { min-width:320px; margin:0; background:radial-gradient(circle at 8% 5%,rgba(166,77,46,.08),transparent 30rem),var(--background); color:var(--ink); font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; line-height:1.45; }
+    button,select { font:inherit; }
+    button { cursor:pointer; }
+    .skip-link { position:fixed; z-index:20; top:.5rem; left:.5rem; padding:.6rem .85rem; border-radius:.5rem; background:var(--paper); color:var(--ink); transform:translateY(-180%); }
+    .skip-link:focus { transform:translateY(0); }
+    .site-header { border-bottom:1px solid var(--line); background:rgba(255,253,248,.88); backdrop-filter:blur(16px); }
+    .site-nav { display:flex; width:min(1200px,calc(100% - 2rem)); min-height:4.2rem; margin:0 auto; align-items:center; justify-content:space-between; gap:1rem; }
+    .brand,.back-link { font-weight:750; text-decoration:none; }
+    .brand { color:var(--ink); }
+    .back-link { color:var(--accent); font-size:.9rem; }
+    .page-shell { width:min(1180px,calc(100% - 1.5rem)); margin:0 auto; padding:2.6rem 0 4rem; }
+    .app-intro { display:flex; margin-bottom:1.5rem; align-items:end; justify-content:space-between; gap:2rem; }
+    .eyebrow { margin:0 0 .35rem; color:var(--accent); font-size:.74rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+    h1 { margin:0; font-size:clamp(2.35rem,7vw,4.8rem); letter-spacing:-.06em; line-height:.95; }
+    .intro-copy { max-width:36rem; margin:0; color:var(--muted); text-align:right; }
+    .calendar-card { overflow:hidden; border:1px solid var(--line); border-radius:1.25rem; background:var(--paper); box-shadow:var(--shadow); }
+    .calendar-toolbar { display:grid; grid-template-columns:auto minmax(16rem,1fr) auto; padding:1rem; align-items:center; gap:.8rem; border-bottom:1px solid var(--line); }
+    .view-switch,.calendar-nav,.calendar-options { display:flex; align-items:center; gap:.4rem; }
+    .calendar-nav { justify-content:center; }
+    .calendar-options { justify-content:flex-end; }
+    .tool-button,.view-button,.nav-button,.holiday-select { min-height:2.65rem; border:1px solid var(--line); border-radius:.65rem; background:#fff; color:var(--ink); font-weight:720; }
+    .tool-button,.view-button { padding:.45rem .7rem; }
+    .view-button[aria-pressed="true"] { border-color:var(--accent); background:var(--accent-soft); color:var(--accent); }
+    .nav-button { width:2.65rem; padding:0; font-size:1.15rem; }
+    .holiday-select { max-width:12rem; padding:.4rem .55rem; }
+    .range-title { min-width:12rem; margin:0 .35rem; font-size:clamp(1rem,2.5vw,1.35rem); text-align:center; }
+    .calendar-content { min-height:32rem; }
+    .month-weekdays,.month-grid { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); }
+    .month-weekdays { border-bottom:1px solid var(--line); background:#f8f4ed; }
+    .weekday { padding:.55rem; color:var(--muted); font-size:.7rem; font-weight:800; letter-spacing:.08em; text-align:center; text-transform:uppercase; }
+    .day-cell { position:relative; min-height:8.2rem; padding:.55rem; border:0; border-right:1px solid var(--line); border-bottom:1px solid var(--line); background:transparent; color:var(--ink); text-align:left; vertical-align:top; }
+    .day-cell:nth-child(7n) { border-right:0; }
+    .day-cell:hover { background:#faf5ec; }
+    .day-cell.outside { background:var(--outside); color:#aaa297; }
+    .day-cell.today { box-shadow:inset 0 0 0 2px var(--accent); background:var(--today); }
+    .day-number { display:inline-grid; width:1.7rem; height:1.7rem; margin-bottom:.35rem; place-items:center; border-radius:50%; font-size:.82rem; font-weight:800; }
+    .today .day-number { background:var(--accent); color:#fff; }
+    .holiday { display:block; margin:.17rem 0; padding:.16rem .3rem; border-radius:.3rem; background:var(--accent-soft); color:var(--accent); font-size:.65rem; font-weight:750; line-height:1.25; }
+    .week-grid { display:grid; grid-template-columns:repeat(7,minmax(8rem,1fr)); min-height:39rem; overflow-x:auto; }
+    .week-day { min-width:0; border-right:1px solid var(--line); }
+    .week-day:last-child { border-right:0; }
+    .week-heading { width:100%; padding:.8rem .45rem; border:0; border-bottom:1px solid var(--line); background:#f8f4ed; color:var(--ink); text-align:center; }
+    .week-heading.today { background:var(--today); color:var(--accent); }
+    .week-name { display:block; color:var(--muted); font-size:.66rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+    .week-number { display:block; font-size:1.35rem; font-weight:850; }
+    .week-holidays { min-height:2.7rem; padding:.45rem; border-bottom:1px solid var(--line); }
+    .writing-lines { padding:.2rem .55rem; }
+    .writing-line { height:2.3rem; border-bottom:1px solid #ebe4d9; }
+    .day-view { padding:1rem; }
+    .day-heading { display:flex; padding:.35rem .2rem 1rem; align-items:center; justify-content:space-between; gap:1rem; }
+    .day-heading h3 { margin:0; font-size:1.25rem; }
+    .day-holidays { display:flex; flex-wrap:wrap; gap:.3rem; }
+    .day-holidays .holiday { display:inline-block; }
+    .hour-grid { border:1px solid var(--line); border-radius:.7rem; overflow:hidden; }
+    .hour-row { display:grid; grid-template-columns:5.2rem 1fr; min-height:3rem; border-bottom:1px solid var(--line); }
+    .hour-row:last-child { border-bottom:0; }
+    .hour-label { padding:.7rem .65rem; border-right:1px solid var(--line); background:#f8f4ed; color:var(--muted); font-size:.72rem; font-weight:750; text-align:right; }
+    .hour-space { background:repeating-linear-gradient(0deg,transparent,transparent 1.45rem,rgba(220,212,200,.45) 1.48rem); }
+    .calendar-note { margin:1rem 0 0; padding:.8rem 1rem; border-left:3px solid var(--accent); border-radius:0 .6rem .6rem 0; background:rgba(247,229,220,.7); color:var(--muted); font-size:.78rem; }
+    button:focus-visible,a:focus-visible,select:focus-visible { outline:3px solid rgba(166,77,46,.28); outline-offset:2px; }
+    @media (max-width:850px) {
+      .calendar-toolbar { grid-template-columns:1fr; }
+      .view-switch,.calendar-options { justify-content:center; flex-wrap:wrap; }
+      .calendar-nav { grid-row:1; }
+      .day-cell { min-height:6.8rem; padding:.35rem; }
+      .holiday { font-size:.58rem; }
+    }
+    @media (max-width:560px) {
+      .page-shell { width:calc(100% - .65rem); padding-top:1.6rem; }
+      .app-intro { display:block; padding-inline:.35rem; }
+      .intro-copy { margin-top:.65rem; text-align:left; }
+      .calendar-card { border-radius:.8rem; }
+      .day-cell { min-height:5.3rem; }
+      .weekday { padding:.4rem .1rem; font-size:.57rem; }
+      .day-number { width:1.35rem; height:1.35rem; font-size:.7rem; }
+      .holiday { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+      .hour-row { grid-template-columns:4.4rem 1fr; }
+    }
+    @media print {
+      @page { margin:.4in; }
+      :root { --paper:#fff; --background:#fff; --ink:#000; --muted:#444; --line:#aaa; --accent:#000; --accent-soft:#eee; --today:#fff; --outside:#f5f5f5; }
+      body { background:#fff; }
+      .site-header,.app-intro,.view-switch,.calendar-options,.nav-button,.calendar-note { display:none !important; }
+      .page-shell { width:100%; padding:0; }
+      .calendar-card { border:0; border-radius:0; box-shadow:none; }
+      .calendar-toolbar { display:block; padding:0 0 .15in; border:0; }
+      .range-title { font-size:18pt; }
+      .calendar-content { min-height:0; }
+      .day-cell { min-height:.95in; break-inside:avoid; }
+      .week-grid { min-height:9in; overflow:visible; }
+      .week-grid { grid-template-columns:repeat(7,minmax(0,1fr)); }
+      .week-day { min-width:0; }
+      .writing-line { height:.48in; }
+      .day-view { padding:0; }
+      .day-heading { padding:0 0 .12in; }
+      .hour-row { min-height:.3in; }
+      .hour-label { padding:.04in .1in; }
+      .holiday { color:#000; }
+    }
+  </style>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6194699946397512"
+       crossorigin="anonymous"></script>
+</head>
+<body>
+  <a class="skip-link" href="#calendar-app">Skip to calendar</a>
+  <header class="site-header">
+    <nav class="site-nav" aria-label="App navigation">
+      <a class="brand" href="/">Iago Pinal-Fernandez</a>
+      <a class="back-link" href="/apps.html"><span aria-hidden="true">←</span> All apps</a>
+    </nav>
+  </header>
+
+  <main class="page-shell" id="calendar-app">
+    <header class="app-intro">
+      <div>
+        <p class="eyebrow">Plan and print</p>
+        <h1>Calendar</h1>
+      </div>
+      <p class="intro-copy">Move between months, weeks, and an hourly daily planner. Choose a common holiday calendar and print the view you need.</p>
+    </header>
+
+    <section class="calendar-card" aria-label="Calendar">
+      <div class="calendar-toolbar">
+        <div class="view-switch" aria-label="Calendar view">
+          <button class="view-button" type="button" data-view="month" aria-pressed="true">Month</button>
+          <button class="view-button" type="button" data-view="week" aria-pressed="false">Week</button>
+          <button class="view-button" type="button" data-view="day" aria-pressed="false">Day</button>
+        </div>
+        <div class="calendar-nav">
+          <button class="nav-button" id="previous-button" type="button" aria-label="Previous period">‹</button>
+          <h2 class="range-title" id="range-title">Calendar</h2>
+          <button class="nav-button" id="next-button" type="button" aria-label="Next period">›</button>
+        </div>
+        <div class="calendar-options">
+          <button class="tool-button" id="today-button" type="button">Today</button>
+          <label for="holiday-region" class="weekday">Holidays</label>
+          <select class="holiday-select" id="holiday-region">
+            <option value="us">United States</option>
+            <option value="es">Spain</option>
+            <option value="uk">England &amp; Wales</option>
+            <option value="ca">Canada</option>
+          </select>
+          <button class="tool-button" id="print-button" type="button">Print</button>
+        </div>
+      </div>
+      <div class="calendar-content" id="calendar-content" aria-live="polite"></div>
+    </section>
+
+    <p class="calendar-note">Holiday sets include common national or federal dates for planning. State, provincial, autonomous-community, local, and one-off holidays may differ.</p>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+      const content = document.querySelector("#calendar-content");
+      const title = document.querySelector("#range-title");
+      const previousButton = document.querySelector("#previous-button");
+      const nextButton = document.querySelector("#next-button");
+      const todayButton = document.querySelector("#today-button");
+      const printButton = document.querySelector("#print-button");
+      const regionSelect = document.querySelector("#holiday-region");
+      const viewButtons = [...document.querySelectorAll("[data-view]")];
+      const today = atNoon(new Date());
+      let selectedDate = atNoon(new Date());
+      let activeView = "month";
+      let region = "us";
+      const holidayCache = new Map();
+
+      loadSettings();
+      render();
+
+      function atNoon(date) { return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12); }
+      function addDays(date, days) { const result = atNoon(date); result.setDate(result.getDate() + days); return result; }
+      function startOfWeek(date) { return addDays(date, -date.getDay()); }
+      function key(date) { return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`; }
+      function sameDay(a,b) { return key(a) === key(b); }
+      function element(tag, className = "", text = "") { const node=document.createElement(tag); if(className)node.className=className; if(text)node.textContent=text; return node; }
+
+      function loadSettings() {
+        try {
+          const settings = JSON.parse(localStorage.getItem("calendar-settings-v1") || "{}");
+          if (["month","week","day"].includes(settings.view)) activeView = settings.view;
+          if (["us","es","uk","ca"].includes(settings.region)) region = settings.region;
+        } catch { /* Defaults remain available. */ }
+        regionSelect.value = region;
+      }
+
+      function saveSettings() {
+        try { localStorage.setItem("calendar-settings-v1", JSON.stringify({ view:activeView, region })); } catch { /* Calendar remains usable. */ }
+      }
+
+      function addHoliday(map, date, name) {
+        const dateKey = key(date);
+        if (!map.has(dateKey)) map.set(dateKey, []);
+        if (!map.get(dateKey).includes(name)) map.get(dateKey).push(name);
+      }
+
+      function fixed(map, year, month, day, name, observed = false) {
+        const date = new Date(year, month, day, 12);
+        addHoliday(map, date, name);
+        if (!observed || (date.getDay() !== 0 && date.getDay() !== 6)) return;
+        addHoliday(map, addDays(date, date.getDay() === 6 ? -1 : 1), `${name} (observed)`);
+      }
+
+      function nthWeekday(year, month, weekday, nth) {
+        const first = new Date(year, month, 1, 12);
+        return new Date(year, month, 1 + ((weekday - first.getDay() + 7) % 7) + (nth - 1) * 7, 12);
+      }
+
+      function lastWeekday(year, month, weekday) {
+        const last = new Date(year, month + 1, 0, 12);
+        return addDays(last, -((last.getDay() - weekday + 7) % 7));
+      }
+
+      function easter(year) {
+        const a=year%19,b=Math.floor(year/100),c=year%100,d=Math.floor(b/4),e=b%4;
+        const f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30;
+        const i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451);
+        const month=Math.floor((h+l-7*m+114)/31)-1,day=(h+l-7*m+114)%31+1;
+        return new Date(year,month,day,12);
+      }
+
+      function substituteWeekendPair(map, year) {
+        const occupied = new Set();
+        const christmas = new Date(year,11,25,12);
+        const boxing = new Date(year,11,26,12);
+        addHoliday(map,christmas,"Christmas Day"); addHoliday(map,boxing,"Boxing Day");
+        occupied.add(key(christmas)); occupied.add(key(boxing));
+        for (const [date,name] of [[christmas,"Christmas Day"],[boxing,"Boxing Day"]]) {
+          if (date.getDay()!==0 && date.getDay()!==6) continue;
+          let substitute=new Date(year,11,27,12);
+          while (substitute.getDay()===0 || substitute.getDay()===6 || occupied.has(key(substitute))) substitute=addDays(substitute,1);
+          addHoliday(map,substitute,`${name} (substitute)`); occupied.add(key(substitute));
+        }
+      }
+
+      function buildHolidays(year, holidayRegion) {
+        const map = new Map();
+        const easterSunday = easter(year);
+        if (holidayRegion === "us") {
+          fixed(map,year,0,1,"New Year's Day",true);
+          addHoliday(map,nthWeekday(year,0,1,3),"Martin Luther King Jr. Day");
+          addHoliday(map,nthWeekday(year,1,1,3),"Washington's Birthday");
+          addHoliday(map,lastWeekday(year,4,1),"Memorial Day");
+          fixed(map,year,5,19,"Juneteenth",true); fixed(map,year,6,4,"Independence Day",true);
+          addHoliday(map,nthWeekday(year,8,1,1),"Labor Day");
+          addHoliday(map,nthWeekday(year,9,1,2),"Columbus Day");
+          fixed(map,year,10,11,"Veterans Day",true);
+          addHoliday(map,nthWeekday(year,10,4,4),"Thanksgiving Day");
+          fixed(map,year,11,25,"Christmas Day",true);
+        }
+        if (holidayRegion === "es") {
+          fixed(map,year,0,1,"New Year's Day"); fixed(map,year,0,6,"Epiphany");
+          addHoliday(map,addDays(easterSunday,-2),"Good Friday");
+          fixed(map,year,4,1,"Labour Day"); fixed(map,year,7,15,"Assumption Day");
+          fixed(map,year,9,12,"National Day of Spain"); fixed(map,year,10,1,"All Saints' Day");
+          fixed(map,year,11,6,"Constitution Day"); fixed(map,year,11,8,"Immaculate Conception"); fixed(map,year,11,25,"Christmas Day");
+        }
+        if (holidayRegion === "uk") {
+          fixed(map,year,0,1,"New Year's Day");
+          const newYear=new Date(year,0,1,12);
+          if(newYear.getDay()===0 || newYear.getDay()===6)addHoliday(map,addDays(newYear,newYear.getDay()===6?2:1),"New Year's Day (substitute)");
+          addHoliday(map,addDays(easterSunday,-2),"Good Friday"); addHoliday(map,addDays(easterSunday,1),"Easter Monday");
+          addHoliday(map,nthWeekday(year,4,1,1),"Early May bank holiday");
+          addHoliday(map,lastWeekday(year,4,1),"Spring bank holiday");
+          addHoliday(map,lastWeekday(year,7,1),"Summer bank holiday");
+          substituteWeekendPair(map,year);
+        }
+        if (holidayRegion === "ca") {
+          fixed(map,year,0,1,"New Year's Day",true); addHoliday(map,addDays(easterSunday,-2),"Good Friday");
+          const may24=new Date(year,4,24,12); addHoliday(map,addDays(may24,-((may24.getDay()+6)%7)),"Victoria Day");
+          fixed(map,year,6,1,"Canada Day",true); addHoliday(map,nthWeekday(year,8,1,1),"Labour Day");
+          if(year>=2021)fixed(map,year,8,30,"National Day for Truth and Reconciliation",true);
+          addHoliday(map,nthWeekday(year,9,1,2),"Thanksgiving Day"); fixed(map,year,10,11,"Remembrance Day");
+          fixed(map,year,11,25,"Christmas Day",true); fixed(map,year,11,26,"Boxing Day",true);
+        }
+        return map;
+      }
+
+      function holidayNames(date) {
+        const dateKey = key(date);
+        const names=[];
+        for (const year of [date.getFullYear()-1,date.getFullYear(),date.getFullYear()+1]) {
+          const cacheKey=`${region}-${year}`;
+          if(!holidayCache.has(cacheKey))holidayCache.set(cacheKey,buildHolidays(year,region));
+          for(const name of holidayCache.get(cacheKey).get(dateKey)||[])if(!names.includes(name))names.push(name);
+        }
+        return names;
+      }
+
+      function titleForView() {
+        if(activeView==="month")return new Intl.DateTimeFormat("en-US",{month:"long",year:"numeric"}).format(selectedDate);
+        if(activeView==="day")return new Intl.DateTimeFormat("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"}).format(selectedDate);
+        const start=startOfWeek(selectedDate),end=addDays(start,6);
+        const left=new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric"}).format(start);
+        const right=new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric",year:"numeric"}).format(end);
+        return `${left} – ${right}`;
+      }
+
+      function render() {
+        content.replaceChildren();
+        title.textContent=titleForView();
+        document.body.dataset.calendarView=activeView;
+        viewButtons.forEach((button)=>button.setAttribute("aria-pressed",String(button.dataset.view===activeView)));
+        if(activeView==="month")renderMonth();
+        if(activeView==="week")renderWeek();
+        if(activeView==="day")renderDay();
+      }
+
+      function holidayNodes(date) {
+        return holidayNames(date).map((name)=>element("span","holiday",name));
+      }
+
+      function renderMonth() {
+        const weekdays=element("div","month-weekdays");
+        for(const name of ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"])weekdays.append(element("div","weekday",name));
+        const grid=element("div","month-grid");
+        const first=new Date(selectedDate.getFullYear(),selectedDate.getMonth(),1,12);
+        const start=startOfWeek(first);
+        for(let index=0;index<42;index+=1){
+          const date=addDays(start,index); const button=element("button","day-cell");
+          button.type="button"; button.dataset.date=key(date);
+          button.setAttribute("aria-label",`Open ${new Intl.DateTimeFormat("en-US",{month:"long",day:"numeric",year:"numeric"}).format(date)} in day view`);
+          if(date.getMonth()!==selectedDate.getMonth())button.classList.add("outside");
+          if(sameDay(date,today))button.classList.add("today");
+          button.append(element("span","day-number",String(date.getDate())),...holidayNodes(date)); grid.append(button);
+        }
+        content.append(weekdays,grid);
+      }
+
+      function renderWeek() {
+        const grid=element("div","week-grid"); const start=startOfWeek(selectedDate);
+        for(let index=0;index<7;index+=1){
+          const date=addDays(start,index),column=element("section","week-day");
+          const heading=element("button",`week-heading${sameDay(date,today)?" today":""}`); heading.type="button"; heading.dataset.date=key(date);
+          heading.append(element("span","week-name",new Intl.DateTimeFormat("en-US",{weekday:"short"}).format(date)),element("span","week-number",String(date.getDate())));
+          const holidays=element("div","week-holidays"); holidays.append(...holidayNodes(date));
+          const lines=element("div","writing-lines"); for(let line=0;line<14;line+=1)lines.append(element("div","writing-line"));
+          column.append(heading,holidays,lines); grid.append(column);
+        }
+        content.append(grid);
+      }
+
+      function renderDay() {
+        const view=element("div","day-view"),heading=element("div","day-heading");
+        heading.append(element("h3","",new Intl.DateTimeFormat("en-US",{weekday:"long",month:"long",day:"numeric"}).format(selectedDate)));
+        const holidays=element("div","day-holidays"); holidays.append(...holidayNodes(selectedDate)); heading.append(holidays);
+        const hours=element("div","hour-grid");
+        for(let hour=0;hour<24;hour+=1){
+          const row=element("div","hour-row");
+          const label=new Intl.DateTimeFormat("en-US",{hour:"numeric"}).format(new Date(2000,0,1,hour));
+          row.append(element("div","hour-label",label),element("div","hour-space")); hours.append(row);
+        }
+        view.append(heading,hours); content.append(view);
+      }
+
+      function dateFromKey(value) { const [year,month,day]=value.split("-").map(Number); return new Date(year,month-1,day,12); }
+      content.addEventListener("click",(event)=>{
+        const target=event.target.closest("[data-date]"); if(!target)return;
+        selectedDate=dateFromKey(target.dataset.date); activeView="day"; saveSettings(); render();
+      });
+      viewButtons.forEach((button)=>button.addEventListener("click",()=>{activeView=button.dataset.view;saveSettings();render();}));
+      previousButton.addEventListener("click",()=>{
+        if(activeView==="month")selectedDate=new Date(selectedDate.getFullYear(),selectedDate.getMonth()-1,1,12);
+        else selectedDate=addDays(selectedDate,activeView==="week"?-7:-1); render();
+      });
+      nextButton.addEventListener("click",()=>{
+        if(activeView==="month")selectedDate=new Date(selectedDate.getFullYear(),selectedDate.getMonth()+1,1,12);
+        else selectedDate=addDays(selectedDate,activeView==="week"?7:1); render();
+      });
+      todayButton.addEventListener("click",()=>{selectedDate=atNoon(new Date());render();});
+      regionSelect.addEventListener("change",()=>{region=regionSelect.value;holidayCache.clear();saveSettings();render();});
+      printButton.addEventListener("click",()=>window.print());
+    })();
+  </script>
+</body>
+</html>
