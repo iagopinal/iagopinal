@@ -1,0 +1,710 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Practice touch typing with random short passages and review your speed, accuracy, errors, and completion time.">
+  <meta name="theme-color" content="#15252a">
+  <link rel="canonical" href="https://www.iagopinal.com/apps/touch-typing/">
+  <title>Touch Typing | Iago Pinal-Fernandez</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --night:#15252a;
+      --night-soft:#20363b;
+      --paper:#fffdf7;
+      --canvas:#f2eee4;
+      --ink:#203035;
+      --muted:#69777a;
+      --line:#d9d6cb;
+      --teal:#087f7b;
+      --teal-soft:#d8efea;
+      --coral:#d9674f;
+      --coral-soft:#fbe1da;
+      --gold:#d89b39;
+      --white:#fffef9;
+      --shadow:0 28px 80px rgba(12,29,33,.18);
+    }
+
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body {
+      min-width:320px;
+      margin:0;
+      background:
+        radial-gradient(circle at 12% 5%,rgba(8,127,123,.13),transparent 28rem),
+        radial-gradient(circle at 92% 22%,rgba(217,103,79,.11),transparent 30rem),
+        var(--canvas);
+      color:var(--ink);
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      line-height:1.5;
+    }
+
+    button,textarea { font:inherit; }
+    button { cursor:pointer; }
+    [hidden] { display:none !important; }
+
+    .skip-link {
+      position:fixed;
+      z-index:100;
+      top:.65rem;
+      left:.65rem;
+      padding:.65rem .85rem;
+      border-radius:.5rem;
+      background:var(--paper);
+      color:var(--night);
+      transform:translateY(-180%);
+    }
+    .skip-link:focus { transform:translateY(0); }
+
+    .site-header {
+      border-bottom:1px solid rgba(255,255,255,.12);
+      background:rgba(21,37,42,.94);
+      backdrop-filter:blur(15px);
+    }
+    .site-nav {
+      display:flex;
+      width:min(1080px,calc(100% - 2rem));
+      min-height:4.15rem;
+      margin:0 auto;
+      align-items:center;
+      justify-content:space-between;
+      gap:1rem;
+    }
+    .brand,.back-link { font-weight:780; text-decoration:none; }
+    .brand { color:var(--white); }
+    .back-link { color:#7fded4; font-size:.88rem; }
+
+    .page-shell {
+      width:min(1080px,calc(100% - 1.5rem));
+      margin:0 auto;
+      padding:clamp(2rem,6vw,4.5rem) 0 4rem;
+    }
+    .app-intro {
+      display:grid;
+      grid-template-columns:minmax(0,1fr) minmax(18rem,.72fr);
+      margin-bottom:1.55rem;
+      align-items:end;
+      gap:2rem;
+    }
+    .eyebrow {
+      margin:0 0 .35rem;
+      color:var(--teal);
+      font-size:.75rem;
+      font-weight:850;
+      letter-spacing:.13em;
+      text-transform:uppercase;
+    }
+    h1 {
+      margin:0;
+      color:var(--night);
+      font-size:clamp(2.8rem,9vw,6.1rem);
+      letter-spacing:-.07em;
+      line-height:.88;
+    }
+    .intro-copy {
+      max-width:34rem;
+      margin:0;
+      color:var(--muted);
+      font-size:.94rem;
+    }
+
+    .typing-card {
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:1.3rem;
+      background:var(--paper);
+      box-shadow:var(--shadow);
+    }
+    .live-stats {
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      border-bottom:1px solid var(--line);
+      background:var(--night);
+      color:var(--white);
+    }
+    .live-stat {
+      padding:.85rem 1rem;
+      border-right:1px solid rgba(255,255,255,.12);
+    }
+    .live-stat:last-child { border-right:0; }
+    .stat-label {
+      display:block;
+      margin-bottom:.15rem;
+      color:#a9c0c0;
+      font-size:.65rem;
+      font-weight:800;
+      letter-spacing:.1em;
+      text-transform:uppercase;
+    }
+    .stat-value {
+      font-variant-numeric:tabular-nums;
+      font-size:clamp(1.1rem,3vw,1.45rem);
+      font-weight:850;
+    }
+
+    .trainer { padding:clamp(1rem,3.4vw,2rem); }
+    .prompt-header {
+      display:flex;
+      margin-bottom:.7rem;
+      align-items:center;
+      justify-content:space-between;
+      gap:1rem;
+    }
+    .prompt-label {
+      margin:0;
+      color:var(--muted);
+      font-size:.72rem;
+      font-weight:850;
+      letter-spacing:.11em;
+      text-transform:uppercase;
+    }
+    .passage-number { color:var(--teal); font-size:.75rem; font-weight:760; }
+    .passage {
+      min-height:10.8rem;
+      padding:clamp(1rem,3vw,1.7rem);
+      border:1px solid var(--line);
+      border-radius:.9rem;
+      background:#f7f4ec;
+      color:#758083;
+      font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+      font-size:clamp(1.08rem,2.6vw,1.45rem);
+      line-height:1.85;
+      letter-spacing:.012em;
+      white-space:pre-wrap;
+    }
+    .character { border-radius:.16rem; transition:color 90ms ease,background-color 90ms ease; }
+    .character.correct { color:var(--ink); }
+    .character.incorrect { background:var(--coral-soft); color:#a83e2e; text-decoration:underline 2px; text-decoration-color:var(--coral); }
+    .character.current {
+      color:var(--ink);
+      box-shadow:inset 2px 0 0 var(--teal);
+      animation:caret-pulse 1s steps(1,end) infinite;
+    }
+    @keyframes caret-pulse { 50% { box-shadow:inset 2px 0 0 transparent; } }
+
+    .progress-track {
+      height:.42rem;
+      margin:1rem 0;
+      overflow:hidden;
+      border-radius:999px;
+      background:#e4e2d9;
+    }
+    .progress-bar {
+      width:0;
+      height:100%;
+      border-radius:inherit;
+      background:linear-gradient(90deg,var(--teal),#44b9aa);
+      transition:width 120ms ease;
+    }
+
+    .typing-label {
+      display:block;
+      margin-bottom:.4rem;
+      color:var(--ink);
+      font-size:.78rem;
+      font-weight:800;
+    }
+    .typing-input {
+      display:block;
+      width:100%;
+      min-height:8.4rem;
+      resize:vertical;
+      padding:1rem;
+      border:2px solid var(--line);
+      border-radius:.8rem;
+      background:#fff;
+      color:var(--ink);
+      font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+      font-size:1rem;
+      line-height:1.65;
+    }
+    .typing-input:focus { border-color:var(--teal); outline:4px solid rgba(8,127,123,.13); }
+    .typing-input::placeholder { color:#9da5a4; }
+
+    .trainer-footer {
+      display:flex;
+      margin-top:1rem;
+      align-items:center;
+      justify-content:space-between;
+      gap:1rem;
+    }
+    .typing-tip { margin:0; color:var(--muted); font-size:.77rem; }
+    .actions { display:flex; gap:.55rem; flex-wrap:wrap; justify-content:flex-end; }
+    .button {
+      min-height:2.75rem;
+      padding:.55rem .85rem;
+      border:1px solid var(--line);
+      border-radius:.65rem;
+      background:#fff;
+      color:var(--ink);
+      font-weight:780;
+    }
+    .button:hover { border-color:#a8b3b1; background:#f8f7f2; }
+    .button.primary { border-color:var(--teal); background:var(--teal); color:#fff; }
+    .button.primary:hover { background:#076c69; }
+
+    .results {
+      padding:clamp(1.2rem,4vw,2.5rem);
+      text-align:center;
+    }
+    .results-kicker {
+      margin:0 0 .25rem;
+      color:var(--teal);
+      font-size:.72rem;
+      font-weight:850;
+      letter-spacing:.13em;
+      text-transform:uppercase;
+    }
+    .results h2 {
+      margin:0;
+      color:var(--night);
+      font-size:clamp(2rem,6vw,3.6rem);
+      letter-spacing:-.05em;
+    }
+    .results-summary { max-width:37rem; margin:.55rem auto 1.5rem; color:var(--muted); }
+    .report-grid {
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      border:1px solid var(--line);
+      border-radius:.9rem;
+      overflow:hidden;
+      text-align:left;
+    }
+    .report-item { padding:1rem; border-right:1px solid var(--line); background:#f8f6f0; }
+    .report-item:last-child { border-right:0; }
+    .report-label {
+      display:block;
+      color:var(--muted);
+      font-size:.65rem;
+      font-weight:800;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+    .report-value {
+      display:block;
+      margin-top:.15rem;
+      color:var(--night);
+      font-size:clamp(1.35rem,4vw,2.1rem);
+      font-weight:880;
+      letter-spacing:-.04em;
+    }
+    .trouble-note {
+      margin:1rem 0 1.3rem;
+      padding:.85rem 1rem;
+      border-radius:.7rem;
+      background:var(--teal-soft);
+      color:#315a57;
+      font-size:.82rem;
+    }
+    .results .actions { justify-content:center; }
+
+    .sr-only {
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+    button:focus-visible,a:focus-visible { outline:3px solid rgba(8,127,123,.28); outline-offset:2px; }
+
+    @media (max-width:760px) {
+      .app-intro { grid-template-columns:1fr; gap:.8rem; }
+      .live-stats { grid-template-columns:repeat(2,1fr); }
+      .live-stat:nth-child(2) { border-right:0; }
+      .live-stat:nth-child(-n+2) { border-bottom:1px solid rgba(255,255,255,.12); }
+      .report-grid { grid-template-columns:repeat(2,1fr); }
+      .report-item { border-bottom:1px solid var(--line); }
+      .report-item:nth-child(2n) { border-right:0; }
+      .report-item:last-child { grid-column:1 / -1; border-bottom:0; }
+      .trainer-footer { align-items:flex-start; flex-direction:column; }
+      .actions { width:100%; justify-content:stretch; }
+      .actions .button { flex:1; }
+    }
+
+    @media (max-width:430px) {
+      .page-shell { width:calc(100% - .75rem); padding-top:1.5rem; }
+      .site-nav { width:calc(100% - 1rem); }
+      .passage { min-height:9rem; font-size:1rem; line-height:1.7; }
+      .typing-input { min-height:7rem; }
+      .report-grid { grid-template-columns:1fr; }
+      .report-item,.report-item:nth-child(2n),.report-item:last-child { grid-column:auto; border-right:0; border-bottom:1px solid var(--line); }
+      .report-item:last-child { border-bottom:0; }
+    }
+
+    @media (prefers-reduced-motion:reduce) {
+      html { scroll-behavior:auto; }
+      .character.current { animation:none; }
+      .progress-bar { transition:none; }
+    }
+  </style>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6194699946397512"
+       crossorigin="anonymous"></script>
+</head>
+<body>
+  <a class="skip-link" href="#typing-app">Skip to typing practice</a>
+  <header class="site-header">
+    <nav class="site-nav" aria-label="App navigation">
+      <a class="brand" href="/">Iago Pinal-Fernandez</a>
+      <a class="back-link" href="/apps.html"><span aria-hidden="true">←</span> All apps</a>
+    </nav>
+  </header>
+
+  <main class="page-shell" id="typing-app">
+    <header class="app-intro">
+      <div>
+        <p class="eyebrow">Build rhythm and accuracy</p>
+        <h1>Touch Typing</h1>
+      </div>
+      <p class="intro-copy">Type a short, randomly selected passage. The clock begins with your first character, and a detailed report appears when you finish accurately.</p>
+    </header>
+
+    <section class="typing-card" aria-label="Typing test">
+      <div class="live-stats" aria-label="Live typing statistics">
+        <div class="live-stat">
+          <span class="stat-label">Time</span>
+          <span class="stat-value" id="live-time">0:00</span>
+        </div>
+        <div class="live-stat">
+          <span class="stat-label">Speed</span>
+          <span class="stat-value"><span id="live-wpm">0</span> WPM</span>
+        </div>
+        <div class="live-stat">
+          <span class="stat-label">Accuracy</span>
+          <span class="stat-value" id="live-accuracy">100%</span>
+        </div>
+        <div class="live-stat">
+          <span class="stat-label">Progress</span>
+          <span class="stat-value" id="live-progress">0%</span>
+        </div>
+      </div>
+
+      <div class="trainer" id="trainer">
+        <div class="prompt-header">
+          <p class="prompt-label">Practice passage</p>
+          <span class="passage-number" id="passage-number">Random text</span>
+        </div>
+        <div class="passage" id="passage" aria-label="Typing passage"></div>
+        <div class="progress-track" aria-hidden="true"><div class="progress-bar" id="progress-bar"></div></div>
+
+        <label class="typing-label" for="typing-input">Type the passage here</label>
+        <textarea
+          class="typing-input"
+          id="typing-input"
+          rows="5"
+          autocomplete="off"
+          autocapitalize="off"
+          autocorrect="off"
+          spellcheck="false"
+          placeholder="Begin typing when you are ready…"
+          aria-describedby="typing-tip"
+        ></textarea>
+
+        <div class="trainer-footer">
+          <p class="typing-tip" id="typing-tip">Correct mistakes with Backspace. Pasting is disabled so the report reflects your typing.</p>
+          <div class="actions">
+            <button class="button" id="restart-button" type="button">Restart text</button>
+            <button class="button primary" id="new-text-button" type="button">New random text</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="results" id="results" hidden>
+        <p class="results-kicker">Practice complete</p>
+        <h2 id="results-title" tabindex="-1">Typing report</h2>
+        <p class="results-summary" id="results-summary"></p>
+
+        <div class="report-grid" aria-label="Typing results">
+          <div class="report-item">
+            <span class="report-label">Speed</span>
+            <span class="report-value"><span id="result-wpm">0</span> <small>WPM</small></span>
+          </div>
+          <div class="report-item">
+            <span class="report-label">Accuracy</span>
+            <span class="report-value" id="result-accuracy">100%</span>
+          </div>
+          <div class="report-item">
+            <span class="report-label">Errors</span>
+            <span class="report-value" id="result-errors">0</span>
+          </div>
+          <div class="report-item">
+            <span class="report-label">Time</span>
+            <span class="report-value" id="result-time">0:00</span>
+          </div>
+          <div class="report-item">
+            <span class="report-label">Characters</span>
+            <span class="report-value" id="result-characters">0</span>
+          </div>
+        </div>
+
+        <p class="trouble-note" id="trouble-note"></p>
+        <div class="actions">
+          <button class="button" id="retry-result-button" type="button">Retry this text</button>
+          <button class="button primary" id="next-result-button" type="button">Try another text</button>
+        </div>
+      </div>
+    </section>
+
+    <p class="sr-only" id="announcement" aria-live="polite">A random practice passage is ready.</p>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const passages = [
+        "Small improvements become strong habits when they are repeated with patience, attention, and a steady rhythm each day.",
+        "Morning light crossed the quiet room while the kettle warmed, and a fresh page waited beside the open window.",
+        "Clear writing begins with a simple idea, grows through careful revision, and ends when every word earns its place.",
+        "A calm typist looks ahead, keeps both hands relaxed, and lets accuracy create speed instead of forcing the pace.",
+        "The narrow trail curved around red stone, passed beneath tall pines, and opened onto a wide view of the valley.",
+        "Good questions make difficult problems easier because they reveal what matters, what is missing, and what can wait.",
+        "Rain tapped softly against the glass as the city lights reflected in long ribbons across the evening street.",
+        "Learning a new skill can feel slow at first, but focused practice turns uncertain movements into natural ones.",
+        "Pack the map, check the weather, and leave enough time to enjoy the unexpected stops along tomorrow's journey.",
+        "The library was almost silent, except for turning pages, distant footsteps, and the gentle hum of the old clock.",
+        "Useful tools should feel simple: they help people concentrate on the work without demanding attention for themselves.",
+        "Strong teams share information early, listen with curiosity, and treat each mistake as a chance to improve the process."
+      ];
+
+      const passageEl = document.getElementById("passage");
+      const passageNumberEl = document.getElementById("passage-number");
+      const input = document.getElementById("typing-input");
+      const trainer = document.getElementById("trainer");
+      const results = document.getElementById("results");
+      const resultsTitle = document.getElementById("results-title");
+      const resultsSummary = document.getElementById("results-summary");
+      const announcement = document.getElementById("announcement");
+      const progressBar = document.getElementById("progress-bar");
+      const liveTime = document.getElementById("live-time");
+      const liveWpm = document.getElementById("live-wpm");
+      const liveAccuracy = document.getElementById("live-accuracy");
+      const liveProgress = document.getElementById("live-progress");
+      const resultWpm = document.getElementById("result-wpm");
+      const resultAccuracy = document.getElementById("result-accuracy");
+      const resultErrors = document.getElementById("result-errors");
+      const resultTime = document.getElementById("result-time");
+      const resultCharacters = document.getElementById("result-characters");
+      const troubleNote = document.getElementById("trouble-note");
+      const restartButton = document.getElementById("restart-button");
+      const newTextButton = document.getElementById("new-text-button");
+      const retryResultButton = document.getElementById("retry-result-button");
+      const nextResultButton = document.getElementById("next-result-button");
+
+      let passageIndex = -1;
+      let passage = "";
+      let startedAt = 0;
+      let finishedAt = 0;
+      let timerId = 0;
+      let keystrokes = 0;
+      let mistakes = 0;
+      let finished = false;
+      let mistakeMap = new Map();
+      let previousValue = "";
+
+      function randomPassageIndex() {
+        if (passages.length < 2) return 0;
+        let next = Math.floor(Math.random() * passages.length);
+        if (next === passageIndex) {
+          next = (next + 1 + Math.floor(Math.random() * (passages.length - 1))) % passages.length;
+        }
+        return next;
+      }
+
+      function formatTime(milliseconds) {
+        const seconds = Math.max(0, Math.floor(milliseconds / 1000));
+        return Math.floor(seconds / 60) + ":" + String(seconds % 60).padStart(2, "0");
+      }
+
+      function elapsedMilliseconds() {
+        if (!startedAt) return 0;
+        return (finishedAt || performance.now()) - startedAt;
+      }
+
+      function correctCharacters(value) {
+        let correct = 0;
+        for (let index = 0; index < value.length; index += 1) {
+          if (value[index] === passage[index]) correct += 1;
+        }
+        return correct;
+      }
+
+      function accuracyValue() {
+        if (!keystrokes) return 100;
+        return Math.max(0, ((keystrokes - mistakes) / keystrokes) * 100);
+      }
+
+      function wordsPerMinute(value) {
+        const minutes = elapsedMilliseconds() / 60000;
+        if (!minutes) return 0;
+        return Math.round((correctCharacters(value) / 5) / minutes);
+      }
+
+      function renderPassage() {
+        const typed = input.value;
+        passageEl.replaceChildren();
+        passageEl.setAttribute("aria-label", passage);
+        for (let index = 0; index < passage.length; index += 1) {
+          const span = document.createElement("span");
+          span.className = "character";
+          span.textContent = passage[index];
+          span.setAttribute("aria-hidden", "true");
+          if (index < typed.length) {
+            span.classList.add(typed[index] === passage[index] ? "correct" : "incorrect");
+          } else if (index === typed.length) {
+            span.classList.add("current");
+          }
+          passageEl.append(span);
+        }
+      }
+
+      function updateLiveStats() {
+        const typed = input.value;
+        const progress = passage.length ? Math.min(100, Math.round((typed.length / passage.length) * 100)) : 0;
+        liveTime.textContent = formatTime(elapsedMilliseconds());
+        liveWpm.textContent = String(wordsPerMinute(typed));
+        liveAccuracy.textContent = accuracyValue().toFixed(1).replace(".0", "") + "%";
+        liveProgress.textContent = progress + "%";
+        progressBar.style.width = progress + "%";
+      }
+
+      function startTimer() {
+        if (startedAt || finished) return;
+        startedAt = performance.now();
+        timerId = window.setInterval(updateLiveStats, 100);
+        announcement.textContent = "Typing test started.";
+      }
+
+      function resetTest(index) {
+        if (timerId) window.clearInterval(timerId);
+        passageIndex = index;
+        passage = passages[passageIndex];
+        startedAt = 0;
+        finishedAt = 0;
+        timerId = 0;
+        keystrokes = 0;
+        mistakes = 0;
+        finished = false;
+        mistakeMap = new Map();
+        previousValue = "";
+        input.value = "";
+        input.maxLength = passage.length;
+        input.disabled = false;
+        trainer.hidden = false;
+        results.hidden = true;
+        passageNumberEl.textContent = "Text " + (passageIndex + 1) + " of " + passages.length + " · selected randomly";
+        renderPassage();
+        updateLiveStats();
+        input.focus();
+      }
+
+      function recordInsertedText(text, startPosition) {
+        if (!text) return;
+        startTimer();
+        for (let offset = 0; offset < text.length; offset += 1) {
+          const position = startPosition + offset;
+          if (position >= passage.length) break;
+          keystrokes += 1;
+          if (text[offset] !== passage[position]) {
+            mistakes += 1;
+            const expected = passage[position];
+            mistakeMap.set(expected, (mistakeMap.get(expected) || 0) + 1);
+          }
+        }
+      }
+
+      function keyName(character) {
+        if (character === " ") return "space";
+        if (character === "'") return "apostrophe";
+        if (character === ",") return "comma";
+        if (character === ".") return "period";
+        return character.toUpperCase();
+      }
+
+      function finishTest() {
+        if (finished) return;
+        finished = true;
+        finishedAt = performance.now();
+        if (timerId) window.clearInterval(timerId);
+        timerId = 0;
+        updateLiveStats();
+        input.disabled = true;
+
+        const duration = elapsedMilliseconds();
+        const wpm = wordsPerMinute(input.value);
+        const accuracy = accuracyValue();
+        const strongest = accuracy >= 98 ? "Excellent control" : accuracy >= 94 ? "Strong practice" : "Good progress";
+        const sortedMistakes = [...mistakeMap.entries()].sort((a, b) => b[1] - a[1]);
+
+        resultWpm.textContent = String(wpm);
+        resultAccuracy.textContent = accuracy.toFixed(1).replace(".0", "") + "%";
+        resultErrors.textContent = String(mistakes);
+        resultTime.textContent = formatTime(duration);
+        resultCharacters.textContent = String(passage.length);
+        resultsTitle.textContent = strongest;
+        resultsSummary.textContent = "You completed the passage at " + wpm + " words per minute with " + accuracy.toFixed(1).replace(".0", "") + "% keystroke accuracy.";
+        if (!sortedMistakes.length) {
+          troubleNote.textContent = "Perfect accuracy: no incorrect keystrokes were recorded.";
+        } else {
+          const keys = sortedMistakes.slice(0, 4).map(([character, count]) => keyName(character) + " (" + count + ")").join(", ");
+          troubleNote.textContent = "Most-missed characters: " + keys + ". Slow down slightly around these keys on your next attempt.";
+        }
+
+        trainer.hidden = true;
+        results.hidden = false;
+        announcement.textContent = "Typing test complete. " + wpm + " words per minute, " + mistakes + " errors.";
+        resultsTitle.focus();
+      }
+
+      input.addEventListener("beforeinput", (event) => {
+        if (finished) {
+          event.preventDefault();
+          return;
+        }
+        if (event.inputType === "insertFromPaste" || event.inputType === "insertFromDrop") {
+          event.preventDefault();
+          announcement.textContent = "Pasting is disabled for typing practice.";
+        }
+      });
+
+      input.addEventListener("input", (event) => {
+        let inserted = event.data || "";
+        let position = Math.max(0, (input.selectionStart || input.value.length) - inserted.length);
+        if (!inserted && input.value.length > previousValue.length) {
+          let prefix = 0;
+          while (prefix < previousValue.length && previousValue[prefix] === input.value[prefix]) prefix += 1;
+          inserted = input.value.slice(prefix, prefix + input.value.length - previousValue.length);
+          position = prefix;
+        }
+        if (inserted) {
+          recordInsertedText(inserted, position);
+        }
+        previousValue = input.value;
+        renderPassage();
+        updateLiveStats();
+        if (input.value === passage) finishTest();
+      });
+
+      input.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") event.preventDefault();
+      });
+
+      input.addEventListener("paste", (event) => {
+        event.preventDefault();
+        announcement.textContent = "Pasting is disabled for typing practice.";
+      });
+
+      restartButton.addEventListener("click", () => resetTest(passageIndex));
+      newTextButton.addEventListener("click", () => resetTest(randomPassageIndex()));
+      retryResultButton.addEventListener("click", () => resetTest(passageIndex));
+      nextResultButton.addEventListener("click", () => resetTest(randomPassageIndex()));
+
+      resetTest(randomPassageIndex());
+    })();
+  </script>
+</body>
+</html>

@@ -35,11 +35,12 @@
     .view-switch,.calendar-nav,.calendar-options { display:flex; align-items:center; gap:.4rem; }
     .calendar-nav { justify-content:center; }
     .calendar-options { justify-content:flex-end; }
-    .tool-button,.view-button,.nav-button,.holiday-select { min-height:2.65rem; border:1px solid var(--line); border-radius:.65rem; background:#fff; color:var(--ink); font-weight:720; }
+    .tool-button,.view-button,.nav-button,.holiday-select,.week-start-select { min-height:2.65rem; border:1px solid var(--line); border-radius:.65rem; background:#fff; color:var(--ink); font-weight:720; }
     .tool-button,.view-button { padding:.45rem .7rem; }
     .view-button[aria-pressed="true"] { border-color:var(--accent); background:var(--accent-soft); color:var(--accent); }
     .nav-button { width:2.65rem; padding:0; font-size:1.15rem; }
-    .holiday-select { max-width:12rem; padding:.4rem .55rem; }
+    .holiday-select,.week-start-select { max-width:12rem; padding:.4rem .55rem; }
+    .week-start-select { max-width:8.5rem; }
     .range-title { min-width:12rem; margin:0 .35rem; font-size:clamp(1rem,2.5vw,1.35rem); text-align:center; }
     .calendar-content { min-height:32rem; }
     .month-weekdays,.month-grid { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); }
@@ -150,6 +151,11 @@
         </div>
         <div class="calendar-options">
           <button class="tool-button" id="today-button" type="button">Today</button>
+          <label for="week-start" class="weekday">Week starts</label>
+          <select class="week-start-select" id="week-start">
+            <option value="sun">Sunday</option>
+            <option value="mon">Monday</option>
+          </select>
           <label for="holiday-region" class="weekday">Holidays</label>
           <select class="holiday-select" id="holiday-region">
             <option value="us">United States</option>
@@ -176,11 +182,13 @@
       const todayButton = document.querySelector("#today-button");
       const printButton = document.querySelector("#print-button");
       const regionSelect = document.querySelector("#holiday-region");
+      const weekStartSelect = document.querySelector("#week-start");
       const viewButtons = [...document.querySelectorAll("[data-view]")];
       const today = atNoon(new Date());
       let selectedDate = atNoon(new Date());
       let activeView = "month";
       let region = "us";
+      let weekStart = "sun";
       const holidayCache = new Map();
 
       loadSettings();
@@ -188,7 +196,10 @@
 
       function atNoon(date) { return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12); }
       function addDays(date, days) { const result = atNoon(date); result.setDate(result.getDate() + days); return result; }
-      function startOfWeek(date) { return addDays(date, -date.getDay()); }
+      function startOfWeek(date) {
+        const firstDay = weekStart === "mon" ? 1 : 0;
+        return addDays(date, -((date.getDay() - firstDay + 7) % 7));
+      }
       function key(date) { return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`; }
       function sameDay(a,b) { return key(a) === key(b); }
       function element(tag, className = "", text = "") { const node=document.createElement(tag); if(className)node.className=className; if(text)node.textContent=text; return node; }
@@ -198,12 +209,14 @@
           const settings = JSON.parse(localStorage.getItem("calendar-settings-v1") || "{}");
           if (["month","week","day"].includes(settings.view)) activeView = settings.view;
           if (["us","es","uk","ca"].includes(settings.region)) region = settings.region;
+          if (["sun","mon"].includes(settings.weekStart)) weekStart = settings.weekStart;
         } catch { /* Defaults remain available. */ }
         regionSelect.value = region;
+        weekStartSelect.value = weekStart;
       }
 
       function saveSettings() {
-        try { localStorage.setItem("calendar-settings-v1", JSON.stringify({ view:activeView, region })); } catch { /* Calendar remains usable. */ }
+        try { localStorage.setItem("calendar-settings-v1", JSON.stringify({ view:activeView, region, weekStart })); } catch { /* Calendar remains usable. */ }
       }
 
       function addHoliday(map, date, name) {
@@ -330,7 +343,8 @@
 
       function renderMonth() {
         const weekdays=element("div","month-weekdays");
-        for(const name of ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"])weekdays.append(element("div","weekday",name));
+        const names=weekStart==="mon"?["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+        for(const name of names)weekdays.append(element("div","weekday",name));
         const grid=element("div","month-grid");
         const first=new Date(selectedDate.getFullYear(),selectedDate.getMonth(),1,12);
         const start=startOfWeek(first);
@@ -386,6 +400,7 @@
         else selectedDate=addDays(selectedDate,activeView==="week"?7:1); render();
       });
       todayButton.addEventListener("click",()=>{selectedDate=atNoon(new Date());render();});
+      weekStartSelect.addEventListener("change",()=>{weekStart=weekStartSelect.value;saveSettings();render();});
       regionSelect.addEventListener("change",()=>{region=regionSelect.value;holidayCache.clear();saveSettings();render();});
       printButton.addEventListener("click",()=>window.print());
     })();
