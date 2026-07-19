@@ -60,17 +60,23 @@
       border-radius: 999px; background: var(--accent-soft); color: var(--accent-dark); font-size: .75rem; font-weight: 800; white-space: nowrap;
     }
     .todo-card { overflow: hidden; border: 1px solid var(--line); border-radius: 1.25rem; background: var(--surface); box-shadow: var(--shadow); }
-    .composer { display: grid; grid-template-columns: minmax(0,1fr) minmax(8rem,.35fr) auto; padding: 1.2rem; border-bottom: 1px solid var(--line); gap: .65rem; }
-    .task-input, .category-input, .edit-input, .edit-category, .import-mode, .category-filter {
+    .composer { display: grid; grid-template-columns: minmax(0,1fr) minmax(17rem,.65fr) auto; padding: 1.2rem; border-bottom: 1px solid var(--line); gap: .65rem; }
+    .task-input, .category-select, .new-category-input, .edit-input, .edit-category, .import-mode, .category-filter {
       min-height: 3rem; border: 1px solid var(--line); border-radius: .7rem; background: var(--surface-soft); color: var(--text);
     }
-    .task-input, .category-input, .edit-input, .edit-category { width: 100%; padding: .65rem .85rem; }
-    .task-input:focus, .category-input:focus, .edit-input:focus, .edit-category:focus, .import-mode:focus, .category-filter:focus { border-color: var(--accent); outline: 3px solid color-mix(in srgb, var(--accent) 18%, transparent); }
-    .primary-button, .secondary-button, .icon-button, .filter-button, .file-button {
+    .task-input, .category-select, .new-category-input, .edit-input, .edit-category { width: 100%; padding: .65rem .85rem; }
+    .task-input:focus, .category-select:focus, .new-category-input:focus, .edit-input:focus, .edit-category:focus, .import-mode:focus, .category-filter:focus { border-color: var(--accent); outline: 3px solid color-mix(in srgb, var(--accent) 18%, transparent); }
+    .primary-button, .secondary-button, .icon-button, .filter-button, .file-button, .add-category-button {
       min-height: 2.65rem; border: 1px solid var(--line); border-radius: .65rem; font-weight: 750;
     }
     .primary-button { padding: .55rem 1rem; border-color: var(--accent); background: var(--accent); color: #fff; }
     .primary-button:hover { background: var(--accent-dark); }
+    .category-picker { display:grid; grid-template-columns:minmax(8rem,1fr) auto; gap:.45rem; }
+    .add-category-button { padding:.45rem .7rem; background:var(--accent-soft); color:var(--accent-dark); white-space:nowrap; }
+    .add-category-button:hover { border-color:var(--accent); }
+    .category-creator { display:grid; grid-column:1 / -1; grid-template-columns:minmax(0,1fr) auto auto; padding:.75rem; border:1px solid color-mix(in srgb,var(--accent) 25%,var(--line)); border-radius:.75rem; background:var(--accent-soft); gap:.5rem; }
+    .category-creator[hidden] { display:none; }
+    .category-creator .secondary-button { background:var(--surface); }
     .toolbar { display: flex; padding: .85rem 1.2rem; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .75rem; border-bottom: 1px solid var(--line); background: var(--surface-soft); }
     .filters, .file-actions { display: flex; align-items: center; flex-wrap: wrap; gap: .4rem; }
     .filter-button, .secondary-button, .file-button { padding: .48rem .75rem; background: var(--surface); color: var(--text); }
@@ -108,6 +114,9 @@
       .app-intro { grid-template-columns: 1fr; align-items: start; }
       .local-badge { justify-self: start; }
       .composer { grid-template-columns: 1fr; }
+      .category-picker { grid-template-columns:minmax(0,1fr) auto; }
+      .category-creator { grid-column:auto; grid-template-columns:1fr 1fr; }
+      .new-category-input { grid-column:1 / -1; }
       .toolbar { align-items: flex-start; }
       .file-actions { width: 100%; }
       .task-row { grid-template-columns: auto minmax(0,1fr); }
@@ -145,10 +154,18 @@
       <form class="composer" id="task-form">
         <label class="visually-hidden" for="new-task">New task</label>
         <input class="task-input" id="new-task" name="task" type="text" maxlength="240" placeholder="What needs to be done?" autocomplete="off" required>
-        <label class="visually-hidden" for="task-category">Category</label>
-        <input class="category-input" id="task-category" name="category" type="text" maxlength="32" list="category-options" value="General" placeholder="Category" autocomplete="off">
+        <div class="category-picker">
+          <label class="visually-hidden" for="task-category">Category</label>
+          <select class="category-select" id="task-category" name="category" aria-label="Task category"></select>
+          <button class="add-category-button" id="add-category-button" type="button" aria-expanded="false" aria-controls="category-creator">+ Add category</button>
+        </div>
         <button class="primary-button" type="submit">Add task</button>
-        <datalist id="category-options"></datalist>
+        <div class="category-creator" id="category-creator" hidden>
+          <label class="visually-hidden" for="new-category">New category name</label>
+          <input class="new-category-input" id="new-category" type="text" maxlength="32" placeholder="New category name" autocomplete="off">
+          <button class="primary-button" id="save-category-button" type="button">Save category</button>
+          <button class="secondary-button" id="cancel-category-button" type="button">Cancel</button>
+        </div>
       </form>
 
       <div class="toolbar">
@@ -194,10 +211,16 @@
       "use strict";
       const STORAGE_KEY = "todo-list-v2";
       const LEGACY_STORAGE_KEY = "local-todo-list-v1";
+      const CATEGORY_STORAGE_KEY = "todo-categories-v1";
+      const DEFAULT_CATEGORIES = ["General", "Personal", "Work", "Errands"];
       const form = document.querySelector("#task-form");
       const taskInput = document.querySelector("#new-task");
       const taskCategory = document.querySelector("#task-category");
-      const categoryOptions = document.querySelector("#category-options");
+      const addCategoryButton = document.querySelector("#add-category-button");
+      const categoryCreator = document.querySelector("#category-creator");
+      const newCategoryInput = document.querySelector("#new-category");
+      const saveCategoryButton = document.querySelector("#save-category-button");
+      const cancelCategoryButton = document.querySelector("#cancel-category-button");
       const categoryFilter = document.querySelector("#category-filter");
       const list = document.querySelector("#task-list");
       const emptyState = document.querySelector("#empty-state");
@@ -215,6 +238,7 @@
       const status = document.querySelector("#status");
       const filterButtons = [...document.querySelectorAll("[data-filter]")];
       let tasks = loadTasks();
+      let categories = loadCategories(tasks);
       let filter = "all";
       let selectedCategory = "all";
       let editingId = null;
@@ -251,6 +275,24 @@
         }
       }
 
+      function loadCategories(loadedTasks) {
+        try {
+          const stored = JSON.parse(localStorage.getItem(CATEGORY_STORAGE_KEY) || "[]");
+          const saved = Array.isArray(stored) ? stored.map(cleanCategory) : [];
+          return [...new Set([...DEFAULT_CATEGORIES, ...saved, ...loadedTasks.map((task) => task.category)])].sort((a,b) => a.localeCompare(b));
+        } catch {
+          return [...new Set([...DEFAULT_CATEGORIES, ...loadedTasks.map((task) => task.category)])].sort((a,b) => a.localeCompare(b));
+        }
+      }
+
+      function saveCategories() {
+        try {
+          localStorage.setItem(CATEGORY_STORAGE_KEY, JSON.stringify(categories));
+        } catch {
+          status.textContent = "Browser storage is unavailable. New categories may not remain after this visit.";
+        }
+      }
+
       function saveTasks(message = "Saved locally") {
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
@@ -269,12 +311,16 @@
       }
 
       function renderCategories() {
-        const categories = [...new Set(["General", "Personal", "Work", "Errands", ...tasks.map((task) => task.category)])].sort((a,b) => a.localeCompare(b));
-        categoryOptions.replaceChildren(...categories.map((category) => {
+        const currentComposerCategory = taskCategory.value || "General";
+        categories = [...new Set([...DEFAULT_CATEGORIES, ...categories, ...tasks.map((task) => task.category)])].sort((a,b) => a.localeCompare(b));
+        const composerOptions = categories.map((category) => {
           const option = document.createElement("option");
           option.value = category;
+          option.textContent = category;
           return option;
-        }));
+        });
+        taskCategory.replaceChildren(...composerOptions);
+        taskCategory.value = categories.includes(currentComposerCategory) ? currentComposerCategory : "General";
         if (selectedCategory !== "all" && !categories.includes(selectedCategory)) selectedCategory = "all";
         const allOption = document.createElement("option");
         allOption.value = "all";
@@ -287,6 +333,38 @@
         });
         categoryFilter.replaceChildren(allOption, ...options);
         categoryFilter.value = selectedCategory;
+      }
+
+      function setCategoryCreator(open) {
+        categoryCreator.hidden = !open;
+        addCategoryButton.setAttribute("aria-expanded", String(open));
+        if (open) {
+          newCategoryInput.focus();
+          newCategoryInput.select();
+        } else {
+          newCategoryInput.value = "";
+        }
+      }
+
+      function addCategory(value) {
+        if (!String(value || "").trim()) {
+          status.textContent = "Enter a category name first.";
+          newCategoryInput.focus();
+          return;
+        }
+        const cleaned = cleanCategory(value);
+        const existing = categories.find((category) => category.toLocaleLowerCase() === cleaned.toLocaleLowerCase());
+        const category = existing || cleaned;
+        if (!existing) {
+          categories.push(category);
+          categories.sort((a,b) => a.localeCompare(b));
+          saveCategories();
+        }
+        renderCategories();
+        taskCategory.value = category;
+        setCategoryCreator(false);
+        status.textContent = existing ? category + " is already available" : category + " category added";
+        taskInput.focus();
       }
 
       function render() {
@@ -334,12 +412,16 @@
           input.maxLength = 240;
           input.dataset.editId = task.id;
           input.setAttribute("aria-label", "Edit task text");
-          const category = document.createElement("input");
+          const category = document.createElement("select");
           category.className = "edit-category";
-          category.value = task.category;
-          category.maxLength = 32;
-          category.setAttribute("list", "category-options");
           category.setAttribute("aria-label", "Edit task category");
+          category.replaceChildren(...categories.map((name) => {
+            const option = document.createElement("option");
+            option.value = name;
+            option.textContent = name;
+            return option;
+          }));
+          category.value = task.category;
           const save = actionButton("Save", "save");
           const cancel = actionButton("Cancel", "cancel");
           cancel.classList.add("cancel-edit");
@@ -444,6 +526,24 @@
         addTask(taskInput.value, taskCategory.value);
         taskInput.value = "";
         taskInput.focus();
+      });
+
+      addCategoryButton.addEventListener("click", () => setCategoryCreator(categoryCreator.hidden));
+      saveCategoryButton.addEventListener("click", () => addCategory(newCategoryInput.value));
+      cancelCategoryButton.addEventListener("click", () => {
+        setCategoryCreator(false);
+        addCategoryButton.focus();
+      });
+      newCategoryInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          addCategory(newCategoryInput.value);
+        }
+        if (event.key === "Escape") {
+          event.preventDefault();
+          setCategoryCreator(false);
+          addCategoryButton.focus();
+        }
       });
 
       list.addEventListener("change", (event) => {
