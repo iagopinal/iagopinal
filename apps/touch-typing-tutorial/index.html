@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="A 100-level touch typing course with progressive lessons, live finger guidance, performance statistics, and star ratings.">
+  <meta name="theme-color" content="#172a35">
+  <link rel="canonical" href="https://www.iagopinal.com/apps/touch-typing-tutorial/">
+  <title>Touch Typing Tutorial | Iago Pinal-Fernandez</title>
+  <style>
+    :root{color-scheme:light;--navy:#172a35;--navy-2:#223c49;--paper:#fffdf7;--bg:#eef1ed;--ink:#24343a;--muted:#6b797c;--line:#d6ddd9;--teal:#087f78;--teal-soft:#d9efea;--coral:#d5654f;--coral-soft:#f9ded6;--gold:#e0a72e;--shadow:0 28px 80px rgba(22,42,53,.15);--lp:#d16b89;--lr:#a46dce;--lm:#6f82d4;--li:#368fc0;--ri:#278f83;--rm:#65a850;--rr:#d09232;--rp:#d46545}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{min-width:320px;margin:0;background:radial-gradient(circle at 8% 4%,rgba(8,127,120,.12),transparent 28rem),var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}
+    button,select{font:inherit}button{cursor:pointer}[hidden]{display:none!important}.skip-link{position:fixed;z-index:50;top:.6rem;left:.6rem;padding:.6rem .8rem;border-radius:.5rem;background:var(--paper);color:var(--navy);transform:translateY(-180%)}.skip-link:focus{transform:translateY(0)}
+    .site-header{border-bottom:1px solid rgba(255,255,255,.12);background:rgba(23,42,53,.95);backdrop-filter:blur(15px)}.site-nav{display:flex;width:min(1180px,calc(100% - 2rem));min-height:4.15rem;margin:auto;align-items:center;justify-content:space-between;gap:1rem}.brand,.back-link{font-weight:780;text-decoration:none}.brand{color:#fff}.back-link{color:#7de0d5;font-size:.88rem}
+    .page-shell{width:min(1180px,calc(100% - 1.5rem));margin:auto;padding:clamp(2rem,5vw,4rem) 0}.app-intro{display:grid;grid-template-columns:1fr minmax(18rem,.65fr);margin-bottom:1.4rem;align-items:end;gap:2rem}.eyebrow{margin:0 0 .35rem;color:var(--teal);font-size:.74rem;font-weight:850;letter-spacing:.13em;text-transform:uppercase}h1{margin:0;font-size:clamp(2.6rem,8vw,5.7rem);letter-spacing:-.07em;line-height:.9}.intro-copy{margin:0;color:var(--muted)}
+    .course-card{overflow:hidden;border:1px solid var(--line);border-radius:1.25rem;background:var(--paper);box-shadow:var(--shadow)}.course-toolbar{display:grid;grid-template-columns:minmax(15rem,1fr) auto auto;padding:.9rem 1rem;align-items:end;gap:.65rem;border-bottom:1px solid var(--line);background:#f8f7f1}.level-field label{display:block;margin-bottom:.25rem;color:var(--muted);font-size:.68rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.level-select{width:100%;min-height:2.7rem;padding:.45rem .65rem;border:1px solid var(--line);border-radius:.6rem;background:#fff;color:var(--ink);font-weight:700}.nav-button{min-height:2.7rem;padding:.45rem .75rem;border:1px solid var(--line);border-radius:.6rem;background:#fff;color:var(--ink);font-weight:760}.nav-button:hover{border-color:var(--teal)}
+    .lesson-layout{display:grid;grid-template-columns:minmax(15rem,.62fr) minmax(0,1.38fr)}.lesson-sidebar{padding:1.2rem;border-right:1px solid var(--line);background:#fbfaf5}.stage-tag{display:inline-flex;padding:.25rem .5rem;border-radius:999px;background:var(--teal-soft);color:#28645f;font-size:.67rem;font-weight:850}.lesson-sidebar h2{margin:.65rem 0 .35rem;font-size:1.55rem;letter-spacing:-.035em}.lesson-summary{margin:0;color:var(--muted);font-size:.84rem}.facts{display:grid;grid-template-columns:1fr 1fr;margin:1rem 0;border:1px solid var(--line);border-radius:.65rem;overflow:hidden}.fact{padding:.65rem}.fact:nth-child(odd){border-right:1px solid var(--line)}.fact:nth-child(-n+2){border-bottom:1px solid var(--line)}.fact-label{display:block;color:var(--muted);font-size:.61rem;font-weight:800;text-transform:uppercase}.fact-value{display:block;margin-top:.1rem;font-size:.9rem;font-weight:820}.saved-stars{margin:.75rem 0 0;color:var(--gold);font-size:1.1rem;letter-spacing:.08em}.course-progress{margin-top:1rem}.progress-copy{display:flex;margin-bottom:.35rem;justify-content:space-between;color:var(--muted);font-size:.7rem}.progress-track{height:.42rem;overflow:hidden;border-radius:99px;background:#e3e5df}.progress-bar{width:1%;height:100%;background:var(--teal)}
+    .practice{padding:clamp(1rem,3vw,1.7rem)}.finger-guide{display:grid;grid-template-columns:minmax(0,1fr) auto;min-height:4.6rem;margin-bottom:.9rem;padding:.8rem 1rem;align-items:center;gap:1rem;border:1px solid color-mix(in srgb,var(--teal) 25%,var(--line));border-radius:.8rem;background:var(--teal-soft)}.finger-copy small{display:block;color:#4f6d69;font-weight:700}.finger-copy strong{display:block;margin-top:.1rem;font-size:1.05rem}.next-key{display:grid;min-width:3.2rem;height:3.2rem;padding:.3rem;place-items:center;border:2px solid var(--teal);border-bottom-width:5px;border-radius:.55rem;background:#fff;color:var(--navy);font:850 1.35rem "SFMono-Regular",Consolas,monospace}
+    .passage{min-height:9.3rem;padding:1rem;border:1px solid var(--line);border-radius:.8rem;background:#f7f5ee;color:#899194;font:1.22rem/1.9 "SFMono-Regular",Consolas,"Liberation Mono",monospace;white-space:pre-wrap}.char.correct{color:var(--ink)}.char.current{background:var(--teal-soft);color:var(--navy);box-shadow:inset 0 -2px 0 var(--teal)}.char.error{background:var(--coral-soft);color:#9d3e31}.practice-pad{margin-top:.7rem;padding:.7rem;border:2px solid var(--line);border-radius:.75rem;background:#fff;color:var(--muted);font-size:.8rem;text-align:center;outline:0}.practice-pad:focus{border-color:var(--teal);box-shadow:0 0 0 4px rgba(8,127,120,.12)}.practice-pad.active{color:var(--teal)}.live-row{display:grid;grid-template-columns:repeat(4,1fr);margin:.8rem 0;border:1px solid var(--line);border-radius:.7rem;overflow:hidden}.live-stat{padding:.55rem .7rem;border-right:1px solid var(--line)}.live-stat:last-child{border:0}.live-stat span{display:block;color:var(--muted);font-size:.61rem;font-weight:800;text-transform:uppercase}.live-stat strong{font-variant-numeric:tabular-nums}.keyboard{padding:.8rem;border:1px solid var(--line);border-radius:.8rem;background:#edf0ed;overflow-x:auto}.key-row{display:flex;min-width:600px;margin:.28rem 0;justify-content:center;gap:.28rem}.key{display:grid;width:2.7rem;height:2.55rem;place-items:center;border:1px solid rgba(0,0,0,.14);border-bottom-width:3px;border-radius:.35rem;background:#fff;color:var(--ink);font:750 .75rem "SFMono-Regular",Consolas,monospace;opacity:.72}.key.wide{width:4.4rem}.key.space{width:15rem}.key.active{opacity:1;outline:3px solid var(--navy);transform:translateY(-2px)}.key[data-finger="Left pinky"]{border-top:4px solid var(--lp)}.key[data-finger="Left ring"]{border-top:4px solid var(--lr)}.key[data-finger="Left middle"]{border-top:4px solid var(--lm)}.key[data-finger="Left index"]{border-top:4px solid var(--li)}.key[data-finger="Right index"]{border-top:4px solid var(--ri)}.key[data-finger="Right middle"]{border-top:4px solid var(--rm)}.key[data-finger="Right ring"]{border-top:4px solid var(--rr)}.key[data-finger="Right pinky"]{border-top:4px solid var(--rp)}.key[data-finger="Thumb"]{border-top:4px solid var(--gold)}
+    .action-row{display:flex;margin-top:.8rem;justify-content:flex-end;gap:.5rem}.primary-button,.secondary-button{min-height:2.75rem;padding:.55rem .85rem;border:1px solid var(--line);border-radius:.65rem;font-weight:780}.primary-button{border-color:var(--teal);background:var(--teal);color:#fff}.secondary-button{background:#fff;color:var(--ink)}
+    .results{padding:clamp(1.3rem,4vw,2.5rem);text-align:center}.results-kicker{margin:0;color:var(--teal);font-size:.72rem;font-weight:850;text-transform:uppercase;letter-spacing:.12em}.stars{margin:.35rem 0;color:var(--gold);font-size:clamp(2.2rem,7vw,4rem);letter-spacing:.08em}.results h2{margin:.25rem 0;font-size:clamp(1.8rem,5vw,3rem)}.report-grid{display:grid;grid-template-columns:repeat(4,1fr);max-width:50rem;margin:1.2rem auto;border:1px solid var(--line);border-radius:.8rem;overflow:hidden}.report{padding:.8rem;border-right:1px solid var(--line);background:#f8f7f1}.report:last-child{border:0}.report span{display:block;color:var(--muted);font-size:.63rem;font-weight:800;text-transform:uppercase}.report strong{font-size:1.35rem}.results-note{color:var(--muted);font-size:.84rem}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}button:focus-visible,a:focus-visible,select:focus-visible{outline:3px solid rgba(8,127,120,.25);outline-offset:2px}
+    @media(max-width:820px){.app-intro{grid-template-columns:1fr;gap:.8rem}.lesson-layout{grid-template-columns:1fr}.lesson-sidebar{border-right:0;border-bottom:1px solid var(--line)}.timer-layout{grid-template-columns:1fr}}@media(max-width:560px){.page-shell{width:calc(100% - .65rem);padding-top:1.4rem}.course-toolbar{grid-template-columns:1fr 1fr}.level-field{grid-column:1 / -1}.finger-guide{grid-template-columns:1fr auto}.live-row,.report-grid{grid-template-columns:1fr 1fr}.live-stat:nth-child(2),.report:nth-child(2){border-right:0}.live-stat:nth-child(-n+2),.report:nth-child(-n+2){border-bottom:1px solid var(--line)}.keyboard{margin-inline:-.5rem}.passage{font-size:1rem;line-height:1.75}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.key.active{transform:none}}
+  </style>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6194699946397512"
+       crossorigin="anonymous"></script>
+</head>
+<body>
+  <a class="skip-link" href="#typing-course">Skip to tutorial</a>
+  <header class="site-header"><nav class="site-nav" aria-label="App navigation"><a class="brand" href="/">Iago Pinal-Fernandez</a><a class="back-link" href="/apps.html">← All apps</a></nav></header>
+  <main class="page-shell" id="typing-course">
+    <header class="app-intro"><div><p class="eyebrow">A complete progressive course</p><h1>Touch Typing Tutorial</h1></div><p class="intro-copy">Learn one controlled reach at a time across 100 levels. Every stroke includes finger guidance, and every lesson ends with speed, accuracy, errors, and stars.</p></header>
+    <section class="course-card" aria-label="Touch typing course">
+      <div class="course-toolbar">
+        <div class="level-field"><label for="level-select">Choose any level</label><select class="level-select" id="level-select"></select></div>
+        <button class="nav-button" id="previous-level" type="button">← Previous</button>
+        <button class="nav-button" id="next-level" type="button">Next →</button>
+      </div>
+      <div class="lesson-layout" id="lesson-view">
+        <aside class="lesson-sidebar">
+          <span class="stage-tag" id="stage-tag">Stage 1</span>
+          <h2 id="lesson-title">F and J anchors</h2>
+          <p class="lesson-summary" id="lesson-summary"></p>
+          <div class="facts">
+            <div class="fact"><span class="fact-label">New keys</span><strong class="fact-value" id="lesson-keys">F J</strong></div>
+            <div class="fact"><span class="fact-label">Target</span><strong class="fact-value" id="lesson-target">8 WPM</strong></div>
+            <div class="fact"><span class="fact-label">Level</span><strong class="fact-value" id="lesson-number">1 / 100</strong></div>
+            <div class="fact"><span class="fact-label">Length</span><strong class="fact-value" id="lesson-length">0 strokes</strong></div>
+          </div>
+          <div class="course-progress"><div class="progress-copy"><span>Course position</span><span id="course-percent">1%</span></div><div class="progress-track"><div class="progress-bar" id="course-progress"></div></div></div>
+          <p class="saved-stars" id="saved-stars" aria-label="Best star result">☆☆☆</p>
+        </aside>
+        <div class="practice">
+          <div class="finger-guide"><div class="finger-copy"><small>Next stroke</small><strong id="finger-instruction">Press F with your left index finger</strong></div><span class="next-key" id="next-key">F</span></div>
+          <div class="passage" id="passage" aria-label="Practice text"></div>
+          <div class="practice-pad" id="practice-pad" tabindex="0" role="textbox" aria-label="Typing practice area">Click here, then type the highlighted text</div>
+          <div class="live-row" aria-label="Live statistics">
+            <div class="live-stat"><span>Progress</span><strong id="live-progress">0%</strong></div>
+            <div class="live-stat"><span>Accuracy</span><strong id="live-accuracy">100%</strong></div>
+            <div class="live-stat"><span>Errors</span><strong id="live-errors">0</strong></div>
+            <div class="live-stat"><span>Time</span><strong id="live-time">0:00</strong></div>
+          </div>
+          <div class="keyboard" id="keyboard" aria-label="Keyboard finger guide"></div>
+          <div class="action-row"><button class="secondary-button" id="restart-button" type="button">Restart level</button><button class="primary-button" id="focus-button" type="button">Start typing</button></div>
+        </div>
+      </div>
+      <div class="results" id="results" hidden>
+        <p class="results-kicker">Level complete</p><div class="stars" id="result-stars" aria-label="Star result">★★★</div>
+        <h2 id="result-title" tabindex="-1">Excellent control</h2><p class="results-note" id="result-note"></p>
+        <div class="report-grid"><div class="report"><span>Speed</span><strong id="result-wpm">0 WPM</strong></div><div class="report"><span>Accuracy</span><strong id="result-accuracy">100%</strong></div><div class="report"><span>Errors</span><strong id="result-errors">0</strong></div><div class="report"><span>Time</span><strong id="result-time">0:00</strong></div></div>
+        <div class="action-row" style="justify-content:center"><button class="secondary-button" id="retry-button" type="button">Retry level</button><button class="primary-button" id="continue-button" type="button">Continue to next level</button></div>
+      </div>
+    </section>
+    <p class="sr-only" id="announcement" aria-live="polite"></p>
+  </main>
+  <script>
+    (() => {
+      "use strict";
+      const STORAGE_KEY="touch-typing-tutorial-progress-v1";
+      const modules=[
+        {name:"Home Row Foundations",lessons:[
+          ["F and J anchors","f j","Find the raised anchors without looking down. Keep both index fingers curved and relaxed.","fff jjj fjf jfj ff jj fj jf fjf jfj fff jjj",8],
+          ["D and K","d k","Reach inward with both middle fingers, then return immediately to F and J.","ddd kkk dkd kdk fdf jkj dk fd jk kd ddd kkk",8],
+          ["S and L","s l","Add the ring fingers while keeping the wrists level and the anchor fingers ready.","sss lll sls lsl dsd klk fsf jlj sld lds sl ls",9],
+          ["A and semicolon","a ;","Use both pinkies lightly. Avoid twisting the hand when reaching for the outer home keys.","aaa ;;; a;a ;a; as al sad lad; fall; all; alas",9],
+          ["G and H","g h","Stretch each index finger inward for G and H, then return to the anchors.","ggg hhh ghg hgh fg hj fdsa jkl; gh hg hag",10],
+          ["Left home hand","a s d f g","Balance the five left-hand home keys with steady, even strokes.","asdf fdsa sad fad gas sag dad add flag glad",10],
+          ["Right home hand","h j k l ;","Balance the right-hand home keys without lifting the wrist or collapsing the pinky.","hjkl ;lkj hall jak; lash hash shall flask",10],
+          ["Alternating hands","home row","Alternate hands to build rhythm instead of typing one hand in bursts.","a lad asks; a glad lass; fall salad; flask dash",11],
+          ["Home-row words","home row","Type recognizable words using only home-row letters and a controlled space-bar tap.","all fall glad glass hall salad flask shall ask",11],
+          ["Home-row review","home row","Complete a longer home-row drill with accuracy before reaching away from home.","a glad lad asks a lass; all shall fall; a flask has salad",12]
+        ]},
+        {name:"Top Row Reaches",lessons:[
+          ["E and I","e i","Reach the middle fingers upward for two frequent vowels, returning to D and K.","ded kik die kid did like field hide slide",12],
+          ["R and U","r u","Use the index fingers for R and U while the other fingers remain on home row.","frf juj fur rule rush sure rude urge",12],
+          ["W and O","w o","Reach with the ring fingers and keep the movement small.","sws lol low slow show wool wood look",13],
+          ["Q and P","q p","Train the pinky reaches with low force and an immediate home-row return.","aqa ;p; quip quit pull plus apple",13],
+          ["T and Y","t y","Stretch the index fingers to the center of the top row without moving the whole hand.","ftf jyj try yet stay style day toy",14],
+          ["Top-row vowels","e i o u y","Connect vowel reaches to familiar home-row consonants.","idea audio guide side house quiet youth",14],
+          ["Left top row","q w e r t","Control the left-hand diagonal reaches and return to A S D F G.","were tree street quest water after",15],
+          ["Right top row","y u i o p","Control the right-hand diagonal reaches and return to H J K L.","your point union look jump people",15],
+          ["Top-row words","top and home rows","Blend the top and home rows into smooth word patterns.","write polite reply require quality people",16],
+          ["Top-row review","top and home rows","Use every learned letter in a complete sentence with even spacing.","the quiet writer used a good style for the short reply",16]
+        ]},
+        {name:"Bottom Row Reaches",lessons:[
+          ["C and M","c m","Reach down with the middle fingers while keeping the palms still.","dcd kmk calm come camera music",16],
+          ["V and comma","v ,","Use the index and middle fingers for a paired lower-row reach.","fvf k,k vivid, valid, move, value",17],
+          ["X and period","x .","Train the ring fingers and finish words with a light period stroke.","sxs l.l extra. relax. fix. mix.",17],
+          ["Z and slash","z /","Use controlled pinky reaches at the edges of the bottom row.","aza ;/; quiz/zone zero size",18],
+          ["B and N","b n","Share the center-bottom keys between the index fingers without crossing hands.","fbf jnj ban bend bone number",18],
+          ["Left bottom row","z x c v b","Practice each left-hand downward reach and recover home position.","zinc civic basic exact brave",19],
+          ["Right bottom row","n m , . /","Practice the right-hand lower reaches with punctuation.","name, minimum, join. main/line",19],
+          ["Bottom-row words","all letters","Blend lower-row letters into common words while preserving accuracy.","camera next brave zone number move calm",20],
+          ["Full alphabet","a to z","Use every letter with relaxed hands and consistent return to the home row.","the quick brown fox jumps over a lazy dog",20],
+          ["Alphabet review","all letters","Type a natural sentence that moves repeatedly among all three letter rows.","bright waves move calmly beyond the quiet harbor at sunset",21]
+        ]},
+        {name:"Shift and Capitals",lessons:[
+          ["Left-hand capitals","Shift + left keys","Hold the right Shift key with the opposite pinky for capital letters typed by the left hand.","A Safe Driver Found Great Roads",20],
+          ["Right-hand capitals","Shift + right keys","Hold the left Shift key with the opposite pinky for capital letters typed by the right hand.","Happy Journeys Keep Life Moving",20],
+          ["Capitalized names","capital starts","Coordinate Shift, release it promptly, and continue the word without pausing.","Maya Liam Nora Felix Grace Quinn",21],
+          ["Sentence starts","capital sentences","Use one clean Shift stroke at each sentence beginning.","Morning arrived. Birds gathered. People smiled.",21],
+          ["I and proper nouns","capital I","Keep isolated capital I and proper nouns accurate within flowing text.","I met Iris in Madrid and I wrote to James.",22],
+          ["Acronyms","consecutive capitals","Hold Shift through short acronyms while avoiding accidental lowercase letters.","HTML CSS USB NASA GPS PDF",22],
+          ["Mixed case","upper and lower","Switch case frequently without losing the home-row position.","OpenAI uses JavaScript and Python.",23],
+          ["Capital punctuation","Shift timing","Release Shift before spaces and punctuation to prevent unwanted symbols.","Clear Goals Build Better Habits.",23],
+          ["Title case","title words","Capitalize meaningful words while keeping smaller words lowercase.","A Walk Through the Quiet Green Valley",24],
+          ["Shift review","all capitals","Type a short paragraph with names, titles, and acronyms.","Maya shared the PDF with Dr. Jones before Monday.",24]
+        ]},
+        {name:"Number Row",lessons:[
+          ["1 and 0","1 0","Reach both pinkies to the outer number keys and return home.","101 1001 10 1010 100 1000",22],
+          ["2 and 9","2 9","Add the ring-finger number reaches without lifting the wrist.","29 92 229 992 1929 2029",22],
+          ["3 and 8","3 8","Use the middle fingers for balanced number pairs.","38 83 338 883 1938 2083",23],
+          ["4 and 7","4 7","Reach with the index fingers while keeping F and J as reference points.","47 74 447 774 1747 2047",23],
+          ["5 and 6","5 6","Control the longest index-finger reaches at the center of the number row.","56 65 556 665 1956 2065",24],
+          ["Ordered numbers","0 through 9","Type ascending and descending sequences with the assigned fingers.","12345 67890 09876 54321",24],
+          ["Dates","date patterns","Combine numbers with spaces and punctuation to type readable dates.","July 19, 2026. March 4, 2031.",25],
+          ["Times","time patterns","Practice clock times and repeated digit changes.","8:30 10:45 12:00 6:15",25],
+          ["Quantities","numbers in text","Blend numbers into ordinary words without pausing before the number row.","Pack 4 boxes with 12 items in 30 minutes.",26],
+          ["Number review","mixed digits","Complete a varied numeric line with steady accuracy.","Room 407 has 18 chairs, 2 tables, and 6 lamps.",26]
+        ]},
+        {name:"Punctuation Precision",lessons:[
+          ["Comma and period",", .","Place commas and periods with the right middle and ring fingers.","Pause, breathe, type, review. Then continue.",25],
+          ["Question and slash","? /","Use the right pinky and opposite Shift for questions and slashes.","Ready? yes/no. Accurate? true/false.",25],
+          ["Colon and semicolon",": ;","Control shifted and unshifted semicolon-key strokes.","Plan: focus; pause; review; repeat.",26],
+          ["Quotes and apostrophes","' \"","Use the right pinky while releasing Shift precisely around quotation marks.","She said, \"It's ready.\" That's helpful.",26],
+          ["Hyphen and underscore","- _","Reach the right pinky upward without moving the forearm.","well-made user_name long-term file_name",27],
+          ["Parentheses","( )","Pair both shifted number-row reaches around short phrases.","Review (then revise) the final draft (today).",27],
+          ["Exclamation and at","! @","Coordinate opposite Shift with the outer left number keys.","Great! Email help@example.com now!",28],
+          ["Ampersand and percent","& %","Use shifted number keys inside realistic phrases.","Save 25% of time & reduce 7% of errors.",28],
+          ["Brackets","[ ] { }","Use the right pinky for brackets and the opposite Shift for braces.","array[2] holds {name: value} safely.",29],
+          ["Punctuation review","mixed symbols","Apply varied punctuation while keeping spaces and Shift strokes deliberate.","Note: \"Accuracy first!\" (speed follows); ready?",29]
+        ]},
+        {name:"Word Pattern Fluency",lessons:[
+          ["Common short words","the and for","Build automatic patterns for high-frequency three-letter words.","the and for are but not you all can had her was one",28],
+          ["Left-hand patterns","left clusters","Smooth repeated left-hand word shapes without tensing the wrist.","great after start water craft exact secret",28],
+          ["Right-hand patterns","right clusters","Smooth repeated right-hand word shapes and maintain an even space rhythm.","join look upon minimum opinion union",29],
+          ["Alternating patterns","hand alternation","Use natural alternation to increase rhythm with less effort.","quick brown active people enjoy bright music",29],
+          ["Common endings","ing ed ly","Recognize and automate frequent English suffixes.","working tested calmly moving clearly finished",30],
+          ["Common beginnings","re un pre","Automate frequent prefixes while preserving whole-word accuracy.","review return undo unable prepare preview",30],
+          ["Double letters","double letters","Type repeated letters as two controlled strokes instead of holding the key.","letter coffee little success address common",31],
+          ["Long words","long words","Keep a steady pace through longer words rather than rushing their endings.","communication organization responsibility",31],
+          ["Word transitions","space rhythm","Treat the space bar as part of each word pattern and use either thumb.","steady hands create smooth and reliable typing",32],
+          ["Fluency review","mixed words","Sustain a longer sequence of varied words with minimal hesitation.","careful practice develops confident accurate and efficient movement",32]
+        ]},
+        {name:"Sentence Rhythm",lessons:[
+          ["Simple statements","sentence flow","Coordinate capital, words, punctuation, and the following space as one rhythm.","Small habits create lasting skill. Patient practice builds speed.",31],
+          ["Questions","question rhythm","Maintain control through questions and shifted punctuation.","Where will you focus today? Which skill needs patient practice?",31],
+          ["Lists","list punctuation","Use commas without pausing excessively before or after each item.","Bring a notebook, pencil, charger, bottle, and a clear plan.",32],
+          ["Dialogue","quoted speech","Coordinate quotation marks, capitals, commas, and sentence endings.","\"Start slowly,\" she said, \"and let accuracy guide your pace.\"",32],
+          ["Numbers in prose","mixed prose","Reach the number row inside sentences without losing word rhythm.","The team completed 3 drafts in 2 days and fixed 14 details.",33],
+          ["Parenthetical phrases","nested rhythm","Keep the main sentence rhythm around parenthetical information.","The final section (our shortest one) still needs careful review.",33],
+          ["Long sentence","sustained sentence","Maintain posture and accuracy through a longer unbroken thought.","When the movement feels easy, increase speed slightly while keeping every finger relaxed.",34],
+          ["Two sentences","sentence reset","Use the period and next capital without an unnecessary pause.","Read the next phrase before typing it. Keep your eyes on the screen.",34],
+          ["Paragraph rhythm","continuous prose","Sustain consistent spacing and punctuation across several clauses.","Good typing feels quiet and controlled; the hands move little, the eyes stay forward, and the mind follows the words.",35],
+          ["Sentence review","varied prose","Combine questions, numbers, quotes, and punctuation in one advanced passage.","At 9:30, Maya asked, \"Can we finish 2 sections today?\" We agreed.",35]
+        ]},
+        {name:"Technical and Symbol Work",lessons:[
+          ["Email and web","@ . /","Practice common address and URL structures with precise symbol reaches.","name@example.com https://example.com/help",33],
+          ["File paths","/ . _ -","Type portable file and folder names without looking down.","docs/quick_start.md assets/main-style.css",33],
+          ["Assignments","= ;","Practice basic assignment syntax and line-ending punctuation.","count = 12; total = count + 8; ready = true;",34],
+          ["Function calls","( ) ,","Coordinate paired punctuation around names and arguments.","format(name, value); render(page, options);",34],
+          ["Arrays","[ ] ,","Use brackets and commas in compact data structures.","colors = [red, green, blue]; points = [2, 5, 8];",35],
+          ["Objects","{ } :","Practice braces and colons with deliberate opposite-Shift control.","user = {name: \"Maya\", active: true};",35],
+          ["Comparisons","< > ! =","Type comparison operators as precise multi-key sequences.","score >= 90; total != 0; min < value; value <= max;",36],
+          ["Shell commands","- / .","Practice command names, flags, paths, and extensions.","git status --short; ls -la ./docs; node app.js",36],
+          ["Code sentence","mixed code","Move smoothly between identifiers, punctuation, and spaces.","if (ready) { save(data); } else { retry(); }",37],
+          ["Technical review","all symbols","Complete a compact technical passage using most programmer punctuation.","const result = items.filter(x => x.active).map(x => x.id);",37]
+        ]},
+        {name:"Advanced Mastery",lessons:[
+          ["Accuracy sprint","common prose","Prioritize near-perfect accuracy while typing a familiar sentence quickly.","Accuracy creates speed because clean strokes remove the need for corrections.",36],
+          ["Rhythm sprint","alternating prose","Keep a metronomic pace through highly alternating hand patterns.","Bright ideas grow when curious people share useful questions openly.",37],
+          ["Complex punctuation","advanced punctuation","Handle dashes, quotes, parentheses, and semicolons without breaking rhythm.","The result--though unexpected--was clear: \"Revise it (carefully); then publish.\"",38],
+          ["Dense numbers","advanced numbers","Enter varied numeric formats accurately at a sustained pace.","Invoice 2048: 17 items at $8.95 = $152.15 before 6.25% tax.",38],
+          ["Technical speed","advanced code","Type realistic code syntax while maintaining correct finger assignments.","function sum(a, b) { return Number(a) + Number(b); }",39],
+          ["Long-form prose","sustained prose","Maintain relaxed posture through a full-length sentence with varied reaches.","Deliberate practice is most effective when each session has a clear goal, immediate feedback, and enough rest to preserve attention.",39],
+          ["Precision challenge","rare patterns","Control difficult letter combinations, doubled letters, and punctuation.","Rhythmic flexibility quietly improves awkward sequences: queue, rhythm, oxygen.",40],
+          ["Mixed-format challenge","mixed formats","Switch among prose, numbers, addresses, and code without visual searching.","Send report_v2.pdf to team@example.com by 16:30; status = \"ready\".",41],
+          ["Professional passage","professional prose","Type polished workplace prose at a confident and sustainable pace.","Please review the attached analysis, note any unresolved questions, and confirm the final recommendation before Thursday.",42],
+          ["Final mastery","complete keyboard","Demonstrate full-keyboard control, accuracy, rhythm, and endurance in the final lesson.","Mastery is not frantic speed; it is calm, precise movement that remains reliable across prose, numbers, punctuation, and code.",45]
+        ]}
+      ];
+      const levels=[];modules.forEach((module,moduleIndex)=>module.lessons.forEach((lesson,lessonIndex)=>levels.push({number:moduleIndex*10+lessonIndex+1,stage:moduleIndex+1,module:module.name,title:lesson[0],keys:lesson[1],summary:lesson[2],text:lesson[3],target:lesson[4]})));
+      const fingerMap={q:"Left pinky",a:"Left pinky",z:"Left pinky","1":"Left pinky",w:"Left ring",s:"Left ring",x:"Left ring","2":"Left ring",e:"Left middle",d:"Left middle",c:"Left middle","3":"Left middle",r:"Left index",f:"Left index",v:"Left index",t:"Left index",g:"Left index",b:"Left index","4":"Left index","5":"Left index",y:"Right index",h:"Right index",n:"Right index",u:"Right index",j:"Right index",m:"Right index","6":"Right index","7":"Right index",i:"Right middle",k:"Right middle",",":"Right middle","8":"Right middle",o:"Right ring",l:"Right ring",".":"Right ring","9":"Right ring",p:"Right pinky",";":"Right pinky","/":"Right pinky","0":"Right pinky","-":"Right pinky","=":"Right pinky","[":"Right pinky","]":"Right pinky","'":"Right pinky","\\":"Right pinky"," ":"Thumb"};
+      const shifted={"!":"1","@":"2","#":"3","$":"4","%":"5","^":"6","&":"7","*":"8","(":"9",")":"0","_":"-","+":"=","{":"[","}":"]",":":";","\"":"'","?":"/","<":",",">":".","|":"\\"};
+      const rows=[["1","2","3","4","5","6","7","8","9","0","-","="],["q","w","e","r","t","y","u","i","o","p","[","]"],["a","s","d","f","g","h","j","k","l",";","'"],["z","x","c","v","b","n","m",",",".","/"],["Space"]];
+      const levelSelect=document.getElementById("level-select"),previousLevel=document.getElementById("previous-level"),nextLevel=document.getElementById("next-level"),lessonView=document.getElementById("lesson-view"),results=document.getElementById("results"),stageTag=document.getElementById("stage-tag"),lessonTitle=document.getElementById("lesson-title"),lessonSummary=document.getElementById("lesson-summary"),lessonKeys=document.getElementById("lesson-keys"),lessonTarget=document.getElementById("lesson-target"),lessonNumber=document.getElementById("lesson-number"),lessonLength=document.getElementById("lesson-length"),coursePercent=document.getElementById("course-percent"),courseProgress=document.getElementById("course-progress"),savedStars=document.getElementById("saved-stars"),passage=document.getElementById("passage"),practicePad=document.getElementById("practice-pad"),fingerInstruction=document.getElementById("finger-instruction"),nextKey=document.getElementById("next-key"),keyboard=document.getElementById("keyboard"),liveProgress=document.getElementById("live-progress"),liveAccuracy=document.getElementById("live-accuracy"),liveErrors=document.getElementById("live-errors"),liveTime=document.getElementById("live-time"),restartButton=document.getElementById("restart-button"),focusButton=document.getElementById("focus-button"),resultStars=document.getElementById("result-stars"),resultTitle=document.getElementById("result-title"),resultNote=document.getElementById("result-note"),resultWpm=document.getElementById("result-wpm"),resultAccuracy=document.getElementById("result-accuracy"),resultErrors=document.getElementById("result-errors"),resultTime=document.getElementById("result-time"),retryButton=document.getElementById("retry-button"),continueButton=document.getElementById("continue-button"),announcement=document.getElementById("announcement");
+      const keyElements=new Map();
+      let currentLevel=0,index=0,strokes=0,errors=0,startedAt=0,timerId=0,lastError=false,progress=loadProgress();
+      function loadProgress(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||"{\"stars\":{}}")}catch{return{stars:{}}}}
+      function saveProgress(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(progress))}catch{}}
+      function formatTime(ms){const seconds=Math.max(0,Math.floor(ms/1000));return Math.floor(seconds/60)+":"+String(seconds%60).padStart(2,"0")}
+      function elapsed(){return startedAt?performance.now()-startedAt:0}
+      function displayKey(char){if(char===" ")return"Space";return char}
+      function fingerFor(char){const lower=char.toLowerCase(),base=shifted[char]||lower,finger=fingerMap[base]||"Right pinky",needsShift=Boolean(shifted[char])||char!==lower;return{base:base,finger:finger,needsShift:needsShift,shift:finger.startsWith("Left")?"right pinky":"left pinky"}}
+      function populateLevels(){modules.forEach((module,moduleIndex)=>{const group=document.createElement("optgroup");group.label="Stage "+(moduleIndex+1)+": "+module.name;module.lessons.forEach((lesson,lessonIndex)=>{const option=document.createElement("option");const number=moduleIndex*10+lessonIndex+1;option.value=String(number-1);option.textContent=number+". "+lesson[0];group.append(option)});levelSelect.append(group)})}
+      function buildKeyboard(){keyboard.replaceChildren();keyElements.clear();rows.forEach(row=>{const line=document.createElement("div");line.className="key-row";row.forEach(label=>{const key=document.createElement("span");const base=label==="Space"?" ":label;key.className="key"+(label==="Space"?" space":"");key.dataset.key=base;key.dataset.finger=fingerMap[base]||"Right pinky";key.textContent=label;keyElements.set(base,key);line.append(key)});keyboard.append(line)})}
+      function renderLesson(){const level=levels[currentLevel];levelSelect.value=String(currentLevel);stageTag.textContent="Stage "+level.stage+" · "+level.module;lessonTitle.textContent="Level "+level.number+": "+level.title;lessonSummary.textContent=level.summary;lessonKeys.textContent=level.keys.toUpperCase();lessonTarget.textContent=level.target+" WPM";lessonNumber.textContent=level.number+" / 100";lessonLength.textContent=level.text.length+" strokes";coursePercent.textContent=level.number+"%";courseProgress.style.width=level.number+"%";const best=Number(progress.stars[level.number]||0);savedStars.textContent="Best: "+"★".repeat(best)+"☆".repeat(3-best);savedStars.setAttribute("aria-label","Best result "+best+" of 3 stars");previousLevel.disabled=currentLevel===0;nextLevel.disabled=currentLevel===levels.length-1;resetPractice();lessonView.hidden=false;results.hidden=true}
+      function renderPassage(){const text=levels[currentLevel].text;passage.replaceChildren();for(let i=0;i<text.length;i+=1){const span=document.createElement("span");span.className="char";span.textContent=text[i];if(i<index)span.classList.add("correct");if(i===index)span.classList.add(lastError?"error":"current");passage.append(span)}passage.setAttribute("aria-label",text)}
+      function updateFinger(){const char=levels[currentLevel].text[index];keyElements.forEach(key=>key.classList.remove("active"));if(char===undefined){fingerInstruction.textContent="Level complete";nextKey.textContent="✓";return}const info=fingerFor(char),key=keyElements.get(info.base);if(key)key.classList.add("active");nextKey.textContent=displayKey(char);fingerInstruction.textContent=info.needsShift?"Hold "+info.shift+" for Shift; press "+displayKey(info.base).toUpperCase()+" with your "+info.finger.toLowerCase():char===" "?"Press Space with either thumb":"Press "+displayKey(char).toUpperCase()+" with your "+info.finger.toLowerCase()}
+      function updateLive(){const text=levels[currentLevel].text,accuracy=strokes?Math.max(0,(strokes-errors)/strokes*100):100;liveProgress.textContent=Math.round(index/text.length*100)+"%";liveAccuracy.textContent=accuracy.toFixed(1).replace(".0","")+"%";liveErrors.textContent=String(errors);liveTime.textContent=formatTime(elapsed())}
+      function resetPractice(){if(timerId)clearInterval(timerId);index=0;strokes=0;errors=0;startedAt=0;timerId=0;lastError=false;practicePad.textContent="Click here, then type the highlighted text";practicePad.classList.remove("active");renderPassage();updateFinger();updateLive()}
+      function startPractice(){practicePad.focus();practicePad.classList.add("active");practicePad.textContent="Typing active · follow the highlighted character";announcement.textContent="Typing practice ready."}
+      function finish(){if(timerId)clearInterval(timerId);timerId=0;const level=levels[currentLevel],duration=Math.max(1000,elapsed()),minutes=duration/60000,wpm=Math.round((level.text.length/5)/minutes),accuracy=strokes?Math.max(0,(strokes-errors)/strokes*100):100;let stars=1;if(accuracy>=97&&wpm>=level.target)stars=3;else if(accuracy>=92&&wpm>=level.target*.7)stars=2;progress.stars[level.number]=Math.max(Number(progress.stars[level.number]||0),stars);saveProgress();resultStars.textContent="★".repeat(stars)+"☆".repeat(3-stars);resultStars.setAttribute("aria-label",stars+" of 3 stars");resultTitle.textContent=stars===3?"Excellent control":stars===2?"Strong progress":"Level complete";resultNote.textContent=stars===3?"You met both the accuracy and speed goals.":stars===2?"Good work. Repeat once for greater accuracy or speed.":"Slow down, follow the finger guide, and build clean strokes first.";resultWpm.textContent=wpm+" WPM";resultAccuracy.textContent=accuracy.toFixed(1).replace(".0","")+"%";resultErrors.textContent=String(errors);resultTime.textContent=formatTime(duration);lessonView.hidden=true;results.hidden=false;resultTitle.focus();announcement.textContent="Level "+level.number+" complete with "+stars+" stars."}
+      practicePad.addEventListener("keydown",event=>{if(results.hidden===false)return;if(["Shift","Control","Alt","Meta","CapsLock","Tab"].includes(event.key))return;if(event.key==="Backspace"){event.preventDefault();if(index>0){index-=1;lastError=false;renderPassage();updateFinger();updateLive()}return}if(event.key.length!==1)return;event.preventDefault();if(!startedAt){startedAt=performance.now();timerId=setInterval(updateLive,100)}strokes+=1;const expected=levels[currentLevel].text[index];if(event.key===expected){index+=1;lastError=false;if(index>=levels[currentLevel].text.length){updateLive();finish();return}}else{errors+=1;lastError=true}renderPassage();updateFinger();updateLive()});
+      levelSelect.addEventListener("change",()=>{currentLevel=Number(levelSelect.value);renderLesson()});previousLevel.addEventListener("click",()=>{if(currentLevel>0){currentLevel-=1;renderLesson()}});nextLevel.addEventListener("click",()=>{if(currentLevel<99){currentLevel+=1;renderLesson()}});restartButton.addEventListener("click",()=>{resetPractice();startPractice()});focusButton.addEventListener("click",startPractice);retryButton.addEventListener("click",()=>{lessonView.hidden=false;results.hidden=true;resetPractice();startPractice()});continueButton.addEventListener("click",()=>{if(currentLevel<99)currentLevel+=1;renderLesson();startPractice()});
+      populateLevels();buildKeyboard();renderLesson();
+    })();
+  </script>
+</body>
+</html>
