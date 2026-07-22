@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Type two cities or regions to compare their current time, date, and UTC offset.">
+  <meta name="theme-color" content="#101a2c">
+  <link rel="canonical" href="https://www.iagopinal.com/apps/time-zone-converter/">
+  <title>Time Zone Converter | Iago Pinal-Fernandez</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --background: #0b1220;
+      --surface: #111c30;
+      --surface-soft: #17243b;
+      --text: #f6f3e9;
+      --muted: #aeb8c9;
+      --line: rgba(255,255,255,.13);
+      --amber: #ffc15c;
+      --sky: #71d2ff;
+      --violet: #a99aff;
+      --shadow: 0 28px 75px rgba(0,0,0,.38);
+    }
+    * { box-sizing: border-box; }
+    body {
+      min-width: 320px; margin: 0; min-height: 100vh;
+      background:
+        radial-gradient(circle at 12% 18%, rgba(113,210,255,.14), transparent 30rem),
+        radial-gradient(circle at 90% 8%, rgba(169,154,255,.15), transparent 32rem),
+        linear-gradient(145deg, #09101d, #10172a 52%, #0b1220);
+      color: var(--text); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.5;
+    }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    .skip-link { position:fixed; z-index:10; top:.5rem; left:.5rem; padding:.6rem .85rem; border-radius:.5rem; background:#fff; color:#111827; transform:translateY(-180%); }
+    .skip-link:focus { transform:translateY(0); }
+    .site-header { border-bottom:1px solid var(--line); background:rgba(9,16,29,.76); backdrop-filter:blur(18px); }
+    .site-nav { display:flex; width:min(1100px,calc(100% - 2rem)); min-height:4.2rem; margin:0 auto; align-items:center; justify-content:space-between; gap:1rem; }
+    .brand,.back-link { color:var(--text); font-weight:750; text-decoration:none; }
+    .back-link { color:var(--sky); font-size:.9rem; }
+    .page-shell { width:min(1060px,calc(100% - 2rem)); margin:0 auto; padding:3.2rem 0 4rem; }
+    .app-intro { display:flex; margin-bottom:2rem; align-items:end; justify-content:space-between; gap:2rem; }
+    .eyebrow { margin:0 0 .4rem; color:var(--sky); font-size:.74rem; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
+    h1 { margin:0; font-size:clamp(2.4rem,7vw,5rem); letter-spacing:-.06em; line-height:.95; }
+    .intro-copy { max-width:35rem; margin:0; color:var(--muted); text-align:right; }
+    .clock-app { padding:clamp(.85rem,2vw,1.4rem); border:1px solid var(--line); border-radius:1.4rem; background:rgba(15,25,43,.88); box-shadow:var(--shadow); backdrop-filter:blur(16px); }
+    .app-toolbar { display:flex; margin-bottom:1rem; align-items:center; justify-content:space-between; gap:.75rem; }
+    .live-indicator { display:flex; align-items:center; gap:.55rem; color:var(--muted); font-size:.8rem; font-weight:700; }
+    .live-dot { width:.55rem; height:.55rem; border-radius:99px; background:#65e6a5; box-shadow:0 0 .75rem rgba(101,230,165,.75); }
+    .toolbar-actions { display:flex; gap:.45rem; }
+    .toolbar-button,.swap-button { min-height:2.7rem; border:1px solid var(--line); border-radius:.7rem; background:rgba(255,255,255,.06); color:var(--text); font-weight:750; }
+    .toolbar-button { padding:.45rem .75rem; }
+    .toolbar-button:hover,.swap-button:hover { background:rgba(255,255,255,.12); }
+    .clock-grid { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:stretch; gap:.9rem; }
+    .clock-panel { position:relative; overflow:hidden; min-width:0; padding:clamp(1.1rem,3vw,1.6rem); border:1px solid var(--line); border-radius:1.1rem; background:linear-gradient(155deg,rgba(30,47,78,.9),rgba(14,24,42,.95)); }
+    .clock-panel::after { content:""; position:absolute; width:10rem; height:10rem; right:-5rem; bottom:-6rem; border-radius:50%; background:var(--panel-glow,var(--sky)); opacity:.12; filter:blur(3px); }
+    .clock-panel.second { --panel-glow:var(--violet); }
+    .place-label { display:block; margin-bottom:.45rem; color:var(--muted); font-size:.68rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+    .place-input { width:100%; min-height:3rem; padding:.55rem .75rem; border:1px solid var(--line); border-radius:.7rem; background:#17243b; color:var(--text); font-weight:700; }
+    .place-input:focus { border-color:var(--sky); outline:3px solid rgba(113,210,255,.18); }
+    .place-input[aria-invalid="true"] { border-color:#ff8998; }
+    .clock-time { display:block; margin:clamp(1.4rem,4vw,2.2rem) 0 .35rem; font-variant-numeric:tabular-nums; font-size:clamp(2.4rem,7vw,4.8rem); font-weight:850; letter-spacing:-.065em; line-height:1; white-space:nowrap; }
+    .clock-date { margin:0; color:var(--text); font-size:clamp(.9rem,2vw,1.05rem); font-weight:650; }
+    .zone-row { display:flex; margin-top:1.4rem; padding-top:.85rem; border-top:1px solid var(--line); align-items:center; justify-content:space-between; gap:.75rem; color:var(--muted); font-size:.78rem; }
+    .zone-offset { color:var(--amber); font-weight:800; }
+    .swap-column { display:grid; place-items:center; }
+    .swap-button { width:3rem; height:3rem; padding:0; color:var(--sky); font-size:1.1rem; }
+    .comparison { display:grid; grid-template-columns:1fr 1fr; margin-top:.9rem; gap:.75rem; }
+    .comparison-card { padding:1rem 1.1rem; border:1px solid var(--line); border-radius:.9rem; background:rgba(255,255,255,.035); }
+    .comparison-label { display:block; margin-bottom:.25rem; color:var(--muted); font-size:.65rem; font-weight:800; letter-spacing:.11em; text-transform:uppercase; }
+    .comparison-value { font-size:clamp(.95rem,2.5vw,1.2rem); font-weight:750; }
+    .clock-note { margin:1rem 0 0; padding:.85rem 1rem; border-left:3px solid var(--sky); border-radius:0 .65rem .65rem 0; background:rgba(113,210,255,.055); color:var(--muted); font-size:.8rem; }
+    .place-status { min-height:1.35rem; margin:.75rem .2rem 0; color:var(--muted); font-size:.76rem; }
+    button:focus-visible,a:focus-visible { outline:3px solid rgba(113,210,255,.4); outline-offset:3px; }
+    @media (max-width:760px) {
+      .app-intro { display:block; }
+      .intro-copy { margin-top:.7rem; text-align:left; }
+      .clock-grid { grid-template-columns:1fr; }
+      .swap-column { min-height:2.7rem; }
+      .swap-button { transform:rotate(90deg); }
+      .comparison { grid-template-columns:1fr; }
+      .clock-time { font-size:clamp(2.7rem,14vw,4.5rem); }
+    }
+    @media (max-width:450px) {
+      .page-shell { width:calc(100% - 1rem); padding-top:2rem; }
+      .site-nav { width:calc(100% - 1.25rem); }
+      .brand { max-width:10rem; font-size:.82rem; }
+      .clock-app { padding:.6rem; border-radius:1rem; }
+      .app-toolbar { padding:.2rem; }
+      .clock-panel { padding:1rem; }
+      .clock-time { font-size:clamp(2.35rem,13vw,3.5rem); }
+    }
+  </style>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6194699946397512"
+       crossorigin="anonymous"></script>
+</head>
+<body>
+  <a class="skip-link" href="#time-zone-converter">Skip to converter</a>
+  <header class="site-header">
+    <nav class="site-nav" aria-label="App navigation">
+      <a class="brand" href="/">Iago Pinal-Fernandez</a>
+      <a class="back-link" href="/apps.html"><span aria-hidden="true">←</span> All apps</a>
+    </nav>
+  </header>
+
+  <main class="page-shell" id="time-zone-converter">
+    <header class="app-intro">
+      <div>
+        <p class="eyebrow">Time across borders</p>
+        <h1>Time Zone Converter</h1>
+      </div>
+      <p class="intro-copy">Type any major city or region to compare its live local time, calendar date, and UTC offset at a glance.</p>
+    </header>
+
+    <section class="clock-app" aria-label="Time zone comparison">
+      <div class="app-toolbar">
+        <div class="live-indicator"><span class="live-dot" aria-hidden="true"></span><span>Live · updates every second</span></div>
+        <div class="toolbar-actions">
+          <button class="toolbar-button" id="format-button" type="button" aria-pressed="true">24-hour</button>
+        </div>
+      </div>
+
+      <div class="clock-grid">
+        <article class="clock-panel">
+          <label class="place-label" for="place-a">First place</label>
+          <input class="place-input" id="place-a" type="text" list="place-options" placeholder="Type a city or region" autocomplete="off">
+          <time class="clock-time" id="time-a">--:--:--</time>
+          <p class="clock-date" id="date-a">Loading date…</p>
+          <div class="zone-row"><span id="zone-a">—</span><span class="zone-offset" id="offset-a">UTC</span></div>
+        </article>
+
+        <div class="swap-column">
+          <button class="swap-button" id="swap-button" type="button" aria-label="Swap places" title="Swap places">⇄</button>
+        </div>
+
+        <article class="clock-panel second">
+          <label class="place-label" for="place-b">Second place</label>
+          <input class="place-input" id="place-b" type="text" list="place-options" placeholder="Type a city or region" autocomplete="off">
+          <time class="clock-time" id="time-b">--:--:--</time>
+          <p class="clock-date" id="date-b">Loading date…</p>
+          <div class="zone-row"><span id="zone-b">—</span><span class="zone-offset" id="offset-b">UTC</span></div>
+        </article>
+      </div>
+      <datalist id="place-options"></datalist>
+      <p class="place-status" id="place-status" aria-live="polite">Start typing to search the city list.</p>
+
+      <div class="comparison" aria-live="polite">
+        <div class="comparison-card">
+          <span class="comparison-label">Time difference</span>
+          <div class="comparison-value" id="difference">Calculating…</div>
+        </div>
+        <div class="comparison-card">
+          <span class="comparison-label">Calendar relationship</span>
+          <div class="comparison-value" id="day-relation">Calculating…</div>
+        </div>
+      </div>
+    </section>
+
+    <p class="clock-note">Times are calculated locally with your browser’s timezone data. Daylight-saving changes and non-whole-hour offsets are applied automatically; no location or account is required.</p>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+      const PLACES = [
+        ["Pacific", "Honolulu, United States", "Pacific/Honolulu"],
+        ["Pacific", "Papeete, French Polynesia", "Pacific/Tahiti"],
+        ["Pacific", "Guam", "Pacific/Guam"],
+        ["North America", "Anchorage, United States", "America/Anchorage"],
+        ["North America", "Vancouver, Canada", "America/Vancouver"],
+        ["North America", "Calgary, Canada", "America/Edmonton"],
+        ["North America", "Edmonton, Canada", "America/Edmonton"],
+        ["North America", "Seattle, United States", "America/Los_Angeles"],
+        ["North America", "San Francisco, United States", "America/Los_Angeles"],
+        ["North America", "Los Angeles, United States", "America/Los_Angeles"],
+        ["North America", "Las Vegas, United States", "America/Los_Angeles"],
+        ["North America", "Denver, United States", "America/Denver"],
+        ["North America", "Phoenix, United States", "America/Phoenix"],
+        ["North America", "Chicago, United States", "America/Chicago"],
+        ["North America", "Dallas, United States", "America/Chicago"],
+        ["North America", "Houston, United States", "America/Chicago"],
+        ["North America", "Mexico City, Mexico", "America/Mexico_City"],
+        ["North America", "Toronto, Canada", "America/Toronto"],
+        ["North America", "Montreal, Canada", "America/Toronto"],
+        ["North America", "Miami, United States", "America/New_York"],
+        ["North America", "Atlanta, United States", "America/New_York"],
+        ["North America", "Washington, DC, United States", "America/New_York"],
+        ["North America", "Boston, United States", "America/New_York"],
+        ["North America", "New York, United States", "America/New_York"],
+        ["Caribbean & Central America", "Havana, Cuba", "America/Havana"],
+        ["Caribbean & Central America", "San Juan, Puerto Rico", "America/Puerto_Rico"],
+        ["Caribbean & Central America", "Santo Domingo, Dominican Republic", "America/Santo_Domingo"],
+        ["Caribbean & Central America", "Kingston, Jamaica", "America/Jamaica"],
+        ["Caribbean & Central America", "Panama City, Panama", "America/Panama"],
+        ["Caribbean & Central America", "San José, Costa Rica", "America/Costa_Rica"],
+        ["South America", "Bogotá, Colombia", "America/Bogota"],
+        ["South America", "Quito, Ecuador", "America/Guayaquil"],
+        ["South America", "Lima, Peru", "America/Lima"],
+        ["South America", "Caracas, Venezuela", "America/Caracas"],
+        ["South America", "Santiago, Chile", "America/Santiago"],
+        ["South America", "São Paulo, Brazil", "America/Sao_Paulo"],
+        ["South America", "Buenos Aires, Argentina", "America/Argentina/Buenos_Aires"],
+        ["South America", "Montevideo, Uruguay", "America/Montevideo"],
+        ["Europe", "Reykjavík, Iceland", "Atlantic/Reykjavik"],
+        ["Europe", "Dublin, Ireland", "Europe/Dublin"],
+        ["Europe", "London, United Kingdom", "Europe/London"],
+        ["Europe", "Lisbon, Portugal", "Europe/Lisbon"],
+        ["Europe", "Madrid, Spain", "Europe/Madrid"],
+        ["Europe", "Paris, France", "Europe/Paris"],
+        ["Europe", "Amsterdam, Netherlands", "Europe/Amsterdam"],
+        ["Europe", "Brussels, Belgium", "Europe/Brussels"],
+        ["Europe", "Berlin, Germany", "Europe/Berlin"],
+        ["Europe", "Zurich, Switzerland", "Europe/Zurich"],
+        ["Europe", "Vienna, Austria", "Europe/Vienna"],
+        ["Europe", "Rome, Italy", "Europe/Rome"],
+        ["Europe", "Copenhagen, Denmark", "Europe/Copenhagen"],
+        ["Europe", "Oslo, Norway", "Europe/Oslo"],
+        ["Europe", "Stockholm, Sweden", "Europe/Stockholm"],
+        ["Europe", "Helsinki, Finland", "Europe/Helsinki"],
+        ["Europe", "Warsaw, Poland", "Europe/Warsaw"],
+        ["Europe", "Prague, Czechia", "Europe/Prague"],
+        ["Europe", "Budapest, Hungary", "Europe/Budapest"],
+        ["Europe", "Bucharest, Romania", "Europe/Bucharest"],
+        ["Europe", "Sofia, Bulgaria", "Europe/Sofia"],
+        ["Europe", "Belgrade, Serbia", "Europe/Belgrade"],
+        ["Europe", "Athens, Greece", "Europe/Athens"],
+        ["Europe", "Kyiv, Ukraine", "Europe/Kyiv"],
+        ["Europe", "Istanbul, Türkiye", "Europe/Istanbul"],
+        ["Europe", "Moscow, Russia", "Europe/Moscow"],
+        ["Africa", "Cairo, Egypt", "Africa/Cairo"],
+        ["Africa", "Casablanca, Morocco", "Africa/Casablanca"],
+        ["Africa", "Algiers, Algeria", "Africa/Algiers"],
+        ["Africa", "Tunis, Tunisia", "Africa/Tunis"],
+        ["Africa", "Accra, Ghana", "Africa/Accra"],
+        ["Africa", "Lagos, Nigeria", "Africa/Lagos"],
+        ["Africa", "Addis Ababa, Ethiopia", "Africa/Addis_Ababa"],
+        ["Africa", "Johannesburg, South Africa", "Africa/Johannesburg"],
+        ["Africa", "Cape Town, South Africa", "Africa/Johannesburg"],
+        ["Africa", "Nairobi, Kenya", "Africa/Nairobi"],
+        ["Africa", "Maputo, Mozambique", "Africa/Maputo"],
+        ["Middle East", "Jerusalem", "Asia/Jerusalem"],
+        ["Middle East", "Beirut, Lebanon", "Asia/Beirut"],
+        ["Middle East", "Amman, Jordan", "Asia/Amman"],
+        ["Middle East", "Baghdad, Iraq", "Asia/Baghdad"],
+        ["Middle East", "Riyadh, Saudi Arabia", "Asia/Riyadh"],
+        ["Middle East", "Doha, Qatar", "Asia/Qatar"],
+        ["Middle East", "Kuwait City, Kuwait", "Asia/Kuwait"],
+        ["Middle East", "Dubai, United Arab Emirates", "Asia/Dubai"],
+        ["Middle East", "Muscat, Oman", "Asia/Muscat"],
+        ["Middle East", "Tehran, Iran", "Asia/Tehran"],
+        ["Asia", "Karachi, Pakistan", "Asia/Karachi"],
+        ["Asia", "Delhi, India", "Asia/Kolkata"],
+        ["Asia", "Mumbai, India", "Asia/Kolkata"],
+        ["Asia", "Bengaluru, India", "Asia/Kolkata"],
+        ["Asia", "Kathmandu, Nepal", "Asia/Kathmandu"],
+        ["Asia", "Colombo, Sri Lanka", "Asia/Colombo"],
+        ["Asia", "Dhaka, Bangladesh", "Asia/Dhaka"],
+        ["Asia", "Yangon, Myanmar", "Asia/Yangon"],
+        ["Asia", "Bangkok, Thailand", "Asia/Bangkok"],
+        ["Asia", "Hanoi, Vietnam", "Asia/Ho_Chi_Minh"],
+        ["Asia", "Ho Chi Minh City, Vietnam", "Asia/Ho_Chi_Minh"],
+        ["Asia", "Jakarta, Indonesia", "Asia/Jakarta"],
+        ["Asia", "Singapore", "Asia/Singapore"],
+        ["Asia", "Kuala Lumpur, Malaysia", "Asia/Kuala_Lumpur"],
+        ["Asia", "Manila, Philippines", "Asia/Manila"],
+        ["Asia", "Hong Kong", "Asia/Hong_Kong"],
+        ["Asia", "Beijing, China", "Asia/Shanghai"],
+        ["Asia", "Shanghai, China", "Asia/Shanghai"],
+        ["Asia", "Taipei, Taiwan", "Asia/Taipei"],
+        ["Asia", "Seoul, South Korea", "Asia/Seoul"],
+        ["Asia", "Tokyo, Japan", "Asia/Tokyo"],
+        ["Asia", "Osaka, Japan", "Asia/Tokyo"],
+        ["Asia", "Ulaanbaatar, Mongolia", "Asia/Ulaanbaatar"],
+        ["Australia", "Perth, Australia", "Australia/Perth"],
+        ["Australia", "Darwin, Australia", "Australia/Darwin"],
+        ["Australia", "Adelaide, Australia", "Australia/Adelaide"],
+        ["Australia", "Brisbane, Australia", "Australia/Brisbane"],
+        ["Australia", "Melbourne, Australia", "Australia/Melbourne"],
+        ["Australia", "Canberra, Australia", "Australia/Sydney"],
+        ["Australia", "Sydney, Australia", "Australia/Sydney"],
+        ["Australia", "Hobart, Australia", "Australia/Hobart"],
+        ["Pacific", "Auckland, New Zealand", "Pacific/Auckland"],
+        ["Pacific", "Suva, Fiji", "Pacific/Fiji"]
+      ].map(([region, name, zone]) => ({ region, name, zone }));
+
+      const STORAGE_KEY = "time-zone-converter-settings-v1";
+      const LEGACY_STORAGE_KEY = "world-clock-settings-v1";
+      const inputA = document.querySelector("#place-a");
+      const inputB = document.querySelector("#place-b");
+      const placeOptions = document.querySelector("#place-options");
+      const placeStatus = document.querySelector("#place-status");
+      const formatButton = document.querySelector("#format-button");
+      const swapButton = document.querySelector("#swap-button");
+      const difference = document.querySelector("#difference");
+      const dayRelation = document.querySelector("#day-relation");
+      let use24Hour = true;
+      let firstPlace;
+      let secondPlace;
+
+      populatePlaces();
+      loadSettings();
+      updateClocks();
+      const timer = setInterval(updateClocks, 1000);
+      window.addEventListener("pagehide", () => clearInterval(timer), { once: true });
+
+      function populatePlaces() {
+        for (const place of PLACES) {
+          const option = document.createElement("option");
+          option.value = place.name;
+          option.label = place.region;
+          placeOptions.append(option);
+        }
+      }
+
+      function fold(value) {
+        return String(value || "").normalize("NFD").replace(/\p{Diacritic}/gu, "").trim().toLowerCase();
+      }
+
+      function resolvePlace(value) {
+        const query = fold(value);
+        if (!query) return null;
+        return PLACES.find((place) => fold(place.name) === query || fold(place.zone) === query)
+          || PLACES.find((place) => fold(place.name.split(",")[0]) === query)
+          || PLACES.find((place) => fold(place.name).startsWith(query))
+          || PLACES.find((place) => fold(place.name).includes(query));
+      }
+
+      function loadSettings() {
+        let settings = {};
+        try { settings = JSON.parse(localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY) || "{}"); } catch { settings = {}; }
+        const detected = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        firstPlace = resolvePlace(settings.firstName || settings.first) || resolvePlace(detected) || resolvePlace("New York");
+        secondPlace = resolvePlace(settings.secondName || settings.second) || resolvePlace("Madrid");
+        inputA.value = firstPlace.name;
+        inputB.value = secondPlace.name;
+        use24Hour = settings.use24Hour !== false;
+        updateFormatButton();
+      }
+
+      function saveSettings() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({ firstName: firstPlace.name, secondName: secondPlace.name, use24Hour }));
+        } catch { /* The clocks still work when storage is unavailable. */ }
+      }
+
+      function commitPlace(input, position) {
+        const place = resolvePlace(input.value);
+        if (!place) {
+          input.setAttribute("aria-invalid", "true");
+          input.value = position === "first" ? firstPlace.name : secondPlace.name;
+          placeStatus.textContent = "No matching city was found. Try a major city, country, or timezone name.";
+          return;
+        }
+        input.removeAttribute("aria-invalid");
+        if (position === "first") firstPlace = place;
+        else secondPlace = place;
+        input.value = place.name;
+        placeStatus.textContent = `${place.name} selected.`;
+        saveSettings();
+        updateClocks();
+      }
+
+      function formatClock(date, zone) {
+        return new Intl.DateTimeFormat("en-US", {
+          timeZone: zone, hour: "2-digit", minute: "2-digit", second: "2-digit",
+          hour12: !use24Hour, hourCycle: use24Hour ? "h23" : undefined
+        }).format(date);
+      }
+
+      function formatDate(date, zone) {
+        return new Intl.DateTimeFormat("en-US", {
+          timeZone: zone, weekday: "long", month: "long", day: "numeric", year: "numeric"
+        }).format(date);
+      }
+
+      function zoneName(date, zone) {
+        const parts = new Intl.DateTimeFormat("en-US", { timeZone: zone, timeZoneName: "short" }).formatToParts(date);
+        return parts.find((part) => part.type === "timeZoneName")?.value || zone;
+      }
+
+      function partsFor(date, zone) {
+        const parts = new Intl.DateTimeFormat("en-US", {
+          timeZone: zone, year: "numeric", month: "2-digit", day: "2-digit",
+          hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23"
+        }).formatToParts(date);
+        return Object.fromEntries(parts.filter((part) => part.type !== "literal").map((part) => [part.type, Number(part.value)]));
+      }
+
+      function offsetMinutes(date, zone) {
+        const parts = partsFor(date, zone);
+        const represented = Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute, parts.second);
+        return Math.round((represented - date.getTime()) / 60000);
+      }
+
+      function formatOffset(minutes) {
+        if (minutes === 0) return "UTC";
+        const sign = minutes > 0 ? "+" : "−";
+        const absolute = Math.abs(minutes);
+        const hours = Math.floor(absolute / 60);
+        const remainder = absolute % 60;
+        return `UTC${sign}${hours}${remainder ? `:${String(remainder).padStart(2, "0")}` : ""}`;
+      }
+
+      function formatDuration(minutes) {
+        const absolute = Math.abs(minutes);
+        const hours = Math.floor(absolute / 60);
+        const remainder = absolute % 60;
+        const parts = [];
+        if (hours) parts.push(`${hours} hour${hours === 1 ? "" : "s"}`);
+        if (remainder) parts.push(`${remainder} minute${remainder === 1 ? "" : "s"}`);
+        return parts.join(" ") || "the same time";
+      }
+
+      function dateSerial(date, zone) {
+        const parts = partsFor(date, zone);
+        return Date.UTC(parts.year, parts.month - 1, parts.day);
+      }
+
+      function updatePanel(suffix, date, zone) {
+        const time = document.querySelector(`#time-${suffix}`);
+        time.textContent = formatClock(date, zone);
+        time.dateTime = date.toISOString();
+        document.querySelector(`#date-${suffix}`).textContent = formatDate(date, zone);
+        document.querySelector(`#zone-${suffix}`).textContent = zoneName(date, zone);
+        document.querySelector(`#offset-${suffix}`).textContent = formatOffset(offsetMinutes(date, zone));
+      }
+
+      function updateClocks() {
+        const now = new Date();
+        const first = firstPlace;
+        const second = secondPlace;
+        updatePanel("a", now, first.zone);
+        updatePanel("b", now, second.zone);
+        const delta = offsetMinutes(now, second.zone) - offsetMinutes(now, first.zone);
+        if (delta === 0) {
+          difference.textContent = `${first.name} and ${second.name} share the same local time`;
+        } else {
+          difference.textContent = `${second.name} is ${formatDuration(delta)} ${delta > 0 ? "ahead of" : "behind"} ${first.name}`;
+        }
+        const dayDelta = Math.round((dateSerial(now, second.zone) - dateSerial(now, first.zone)) / 86400000);
+        dayRelation.textContent = dayDelta === 0
+          ? "Both places are on the same calendar day"
+          : `${second.name} is on the ${dayDelta > 0 ? "next" : "previous"} calendar day`;
+      }
+
+      function updateFormatButton() {
+        formatButton.textContent = use24Hour ? "24-hour" : "12-hour";
+        formatButton.setAttribute("aria-pressed", String(use24Hour));
+        formatButton.setAttribute("aria-label", `Switch to ${use24Hour ? "12" : "24"}-hour time`);
+      }
+
+      inputA.addEventListener("change", () => commitPlace(inputA, "first"));
+      inputB.addEventListener("change", () => commitPlace(inputB, "second"));
+      [inputA, inputB].forEach((input) => input.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") { event.preventDefault(); input.blur(); }
+      }));
+      formatButton.addEventListener("click", () => {
+        use24Hour = !use24Hour;
+        updateFormatButton();
+        saveSettings();
+        updateClocks();
+      });
+      swapButton.addEventListener("click", () => {
+        [firstPlace, secondPlace] = [secondPlace, firstPlace];
+        inputA.value = firstPlace.name;
+        inputB.value = secondPlace.name;
+        placeStatus.textContent = "Places swapped.";
+        saveSettings();
+        updateClocks();
+      });
+    })();
+  </script>
+</body>
+</html>

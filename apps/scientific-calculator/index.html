@@ -1,0 +1,1174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="An editable scientific calculator with trigonometry, logarithms, constants, memory, history, and degree or radian modes.">
+  <meta name="theme-color" content="#263f8f">
+  <link rel="canonical" href="https://www.iagopinal.com/apps/scientific-calculator/">
+  <title>Scientific Calculator | Iago Pinal-Fernandez</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --accent: #3659c9;
+      --accent-strong: #263f8f;
+      --accent-soft: #e9eeff;
+      --background: #eef1f8;
+      --surface: #ffffff;
+      --surface-muted: #f5f6fa;
+      --display: #17213f;
+      --display-muted: #aeb9de;
+      --display-text: #f7f9ff;
+      --border: #d9dfeb;
+      --text: #192035;
+      --muted: #5c657a;
+      --danger: #b42318;
+      --key: #ffffff;
+      --key-function: #eef1f8;
+      --shadow: 0 18px 55px rgba(32, 48, 92, 0.14);
+      --focus: rgba(54, 89, 201, 0.22);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-width: 320px;
+      margin: 0;
+      background: var(--background);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    a {
+      color: var(--accent-strong);
+    }
+
+    .skip-link {
+      position: fixed;
+      z-index: 10;
+      top: 0.5rem;
+      left: 0.5rem;
+      padding: 0.65rem 0.9rem;
+      border-radius: 0.5rem;
+      background: var(--surface);
+      color: var(--text);
+      transform: translateY(-180%);
+    }
+
+    .skip-link:focus {
+      transform: translateY(0);
+    }
+
+    .site-header {
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .site-nav {
+      display: flex;
+      width: min(1080px, calc(100% - 2rem));
+      min-height: 4.2rem;
+      margin: 0 auto;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .brand,
+    .back-link {
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .brand {
+      color: var(--text);
+    }
+
+    .back-link {
+      color: var(--accent-strong);
+      font-size: 0.9rem;
+    }
+
+    .page-shell {
+      width: min(1080px, calc(100% - 2rem));
+      margin: 0 auto;
+      padding: 3rem 0 4rem;
+    }
+
+    .app-intro {
+      max-width: 780px;
+      margin-bottom: 2rem;
+    }
+
+    .eyebrow {
+      margin: 0 0 0.45rem;
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 750;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0 0 0.6rem;
+      font-size: clamp(2rem, 6vw, 3.7rem);
+      letter-spacing: -0.045em;
+      line-height: 1.05;
+    }
+
+    .app-intro p:last-child {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.08rem;
+    }
+
+    .calculator-card {
+      padding: 1.4rem;
+      border: 1px solid var(--border);
+      border-radius: 1.25rem;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .display-panel {
+      padding: 1.3rem;
+      border-radius: 1rem;
+      background: var(--display);
+      color: var(--display-text);
+    }
+
+    .display-meta {
+      display: flex;
+      min-height: 1.4rem;
+      margin-bottom: 0.55rem;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      color: var(--display-muted);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .memory-indicator[hidden] {
+      display: none;
+    }
+
+    .formula-label {
+      display: block;
+      margin-bottom: 0.3rem;
+      color: var(--display-muted);
+      font-size: 0.75rem;
+      font-weight: 650;
+    }
+
+    .formula-input {
+      width: 100%;
+      min-height: 3rem;
+      padding: 0.55rem 0;
+      border: 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.24);
+      border-radius: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--display-text);
+      font: 500 clamp(1rem, 3vw, 1.35rem)/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      caret-color: #ffffff;
+    }
+
+    .formula-input::placeholder {
+      color: rgba(221, 227, 248, 0.55);
+    }
+
+    .formula-input:focus {
+      border-bottom-color: #91a9ff;
+      box-shadow: 0 2px 0 #91a9ff;
+    }
+
+    .result-row {
+      display: flex;
+      min-height: 5.5rem;
+      padding-top: 0.8rem;
+      align-items: flex-end;
+      justify-content: flex-end;
+      overflow: hidden;
+    }
+
+    .result-output {
+      display: block;
+      max-width: 100%;
+      overflow-x: auto;
+      color: var(--display-text);
+      font-size: clamp(2.2rem, 7vw, 4rem);
+      font-weight: 760;
+      letter-spacing: -0.045em;
+      line-height: 1.05;
+      scrollbar-width: thin;
+      white-space: nowrap;
+    }
+
+    .calculator-error {
+      min-height: 1.3rem;
+      margin: 0.6rem 0 0;
+      color: #ffb4ae;
+      font-size: 0.82rem;
+      text-align: right;
+    }
+
+    .calculator-error[hidden] {
+      visibility: hidden;
+    }
+
+    .calculator-controls {
+      margin-top: 1rem;
+    }
+
+    .memory-row {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 0.55rem;
+      margin-bottom: 0.55rem;
+    }
+
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+      gap: 0.55rem;
+    }
+
+    .key {
+      min-width: 0;
+      min-height: 3.25rem;
+      padding: 0.55rem 0.35rem;
+      border: 1px solid var(--border);
+      border-radius: 0.7rem;
+      background: var(--key);
+      color: var(--text);
+      font: 650 0.92rem/1 system-ui, sans-serif;
+      cursor: pointer;
+      transition: border-color 140ms ease, transform 140ms ease, background-color 140ms ease;
+    }
+
+    .key:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .key:active {
+      transform: translateY(0);
+    }
+
+    .key:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    .key-function,
+    .key-memory {
+      background: var(--key-function);
+      color: var(--accent-strong);
+    }
+
+    .key-number {
+      font-size: 1.08rem;
+      font-weight: 750;
+    }
+
+    .key-operator {
+      background: var(--accent-soft);
+      color: var(--accent-strong);
+      font-size: 1.1rem;
+    }
+
+    .key-danger {
+      color: var(--danger);
+    }
+
+    .key-equals {
+      border-color: var(--accent-strong);
+      background: var(--accent-strong);
+      color: #ffffff;
+      font-size: 1.15rem;
+    }
+
+    .key-toggle[aria-pressed="true"] {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .history-panel {
+      margin-top: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 0.8rem;
+      background: var(--surface-muted);
+    }
+
+    .history-panel summary {
+      padding: 0.8rem 1rem;
+      color: var(--muted);
+      font-size: 0.86rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .history-content {
+      padding: 0 1rem 1rem;
+    }
+
+    .history-list {
+      display: grid;
+      gap: 0.45rem;
+      max-height: 14rem;
+      margin: 0 0 0.7rem;
+      padding: 0;
+      overflow-y: auto;
+      list-style: none;
+    }
+
+    .history-entry {
+      display: flex;
+      width: 100%;
+      padding: 0.65rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 0.6rem;
+      background: var(--surface);
+      color: var(--text);
+      font: inherit;
+      cursor: pointer;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      text-align: left;
+    }
+
+    .history-expression {
+      overflow: hidden;
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .history-result {
+      flex: 0 0 auto;
+      font-weight: 750;
+    }
+
+    .history-empty {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+
+    .history-clear {
+      padding: 0.45rem 0.7rem;
+      border: 1px solid var(--border);
+      border-radius: 0.55rem;
+      background: transparent;
+      color: var(--muted);
+      font: inherit;
+      font-size: 0.78rem;
+      font-weight: 650;
+      cursor: pointer;
+    }
+
+    .calculator-note {
+      margin: 1rem 0 0;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .site-footer {
+      padding: 1.25rem 1rem 2.5rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      text-align: center;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --accent: #8ca6ff;
+        --accent-strong: #b8c6ff;
+        --accent-soft: #25315a;
+        --background: #171922;
+        --surface: #20232d;
+        --surface-muted: #282c38;
+        --display: #11182f;
+        --display-muted: #aeb9de;
+        --display-text: #f7f9ff;
+        --border: #464c5e;
+        --text: #f1f3f8;
+        --muted: #b5bbc9;
+        --danger: #ffaca5;
+        --key: #292d39;
+        --key-function: #303646;
+        --shadow: 0 18px 55px rgba(0, 0, 0, 0.3);
+        --focus: rgba(140, 166, 255, 0.3);
+      }
+
+      .key-equals {
+        color: #10172d;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .page-shell {
+        padding-top: 2rem;
+      }
+
+      .memory-row {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .keypad {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 480px) {
+      .site-nav,
+      .page-shell {
+        width: min(100% - 1rem, 1080px);
+      }
+
+      .brand {
+        max-width: 12rem;
+      }
+
+      .calculator-card {
+        padding: 0.75rem;
+        border-radius: 0.9rem;
+      }
+
+      .display-panel {
+        padding: 1rem;
+      }
+
+      .key {
+        min-height: 3rem;
+        font-size: 0.84rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      .key {
+        transition: none;
+      }
+    }
+  </style>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6194699946397512"
+       crossorigin="anonymous"></script>
+</head>
+<body>
+  <a class="skip-link" href="#formula-input">Skip to formula editor</a>
+
+  <header class="site-header">
+    <nav class="site-nav" aria-label="App navigation">
+      <a class="brand" href="/">Iago Pinal-Fernandez</a>
+      <a class="back-link" href="/apps.html"><span aria-hidden="true">←</span> All apps</a>
+    </nav>
+  </header>
+
+  <main class="page-shell">
+    <header class="app-intro">
+      <p class="eyebrow">Mathematics tool</p>
+      <h1>Scientific Calculator</h1>
+      <p>Build and edit complete formulas, use advanced scientific functions, and revisit previous calculations.</p>
+    </header>
+
+    <section class="calculator-card" aria-label="Scientific calculator">
+      <div class="display-panel">
+        <div class="display-meta">
+          <span id="angle-status">Degrees</span>
+          <span class="memory-indicator" id="memory-indicator" hidden>Memory stored</span>
+        </div>
+        <label class="formula-label" for="formula-input">Formula</label>
+        <input class="formula-input" id="formula-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Try: sin(30)^2 + cos(30)^2">
+        <div class="result-row">
+          <output class="result-output" id="result-output" for="formula-input">0</output>
+        </div>
+        <p class="calculator-error" id="calculator-error" role="alert" hidden>&nbsp;</p>
+      </div>
+
+      <div class="calculator-controls" id="calculator-controls">
+        <div class="memory-row" aria-label="Memory controls">
+          <button class="key key-memory" type="button" data-action="memory-clear">MC</button>
+          <button class="key key-memory" type="button" data-action="memory-recall">MR</button>
+          <button class="key key-memory" type="button" data-action="memory-add">M+</button>
+          <button class="key key-memory" type="button" data-action="memory-subtract">M−</button>
+          <button class="key key-memory" type="button" data-action="memory-store">MS</button>
+          <button class="key key-memory" type="button" data-insert="ans">Ans</button>
+          <button class="key key-memory" type="button" data-action="clear-history">Clear history</button>
+        </div>
+
+        <div class="keypad" aria-label="Calculator keypad">
+          <button class="key key-function key-toggle" id="second-button" type="button" data-action="second" aria-pressed="false">2nd</button>
+          <button class="key key-function key-toggle" id="angle-button" type="button" data-action="angle" aria-pressed="false">DEG</button>
+          <button class="key key-function" type="button" data-insert="(">(</button>
+          <button class="key key-function" type="button" data-insert=")">)</button>
+          <button class="key key-function" type="button" data-insert=" mod ">mod</button>
+          <button class="key key-function" type="button" data-insert="%">%</button>
+          <button class="key key-function key-danger" type="button" data-action="clear">AC</button>
+          <button class="key key-function" type="button" data-action="backspace" aria-label="Backspace">⌫</button>
+
+          <button class="key key-function second-key" type="button" data-primary-label="sin" data-primary-insert="sin(" data-secondary-label="sin⁻¹" data-secondary-insert="asin(">sin</button>
+          <button class="key key-function second-key" type="button" data-primary-label="cos" data-primary-insert="cos(" data-secondary-label="cos⁻¹" data-secondary-insert="acos(">cos</button>
+          <button class="key key-function second-key" type="button" data-primary-label="tan" data-primary-insert="tan(" data-secondary-label="tan⁻¹" data-secondary-insert="atan(">tan</button>
+          <button class="key key-function second-key" type="button" data-primary-label="ln" data-primary-insert="ln(" data-secondary-label="eˣ" data-secondary-insert="exp(">ln</button>
+          <button class="key key-function second-key" type="button" data-primary-label="log" data-primary-insert="log(" data-secondary-label="10ˣ" data-secondary-insert="pow10(">log</button>
+          <button class="key key-function second-key" type="button" data-primary-label="√x" data-primary-insert="sqrt(" data-secondary-label="∛x" data-secondary-insert="cbrt(">√x</button>
+          <button class="key key-function" type="button" data-insert="!">x!</button>
+          <button class="key key-operator" type="button" data-insert="/">÷</button>
+
+          <button class="key key-function second-key" type="button" data-primary-label="sinh" data-primary-insert="sinh(" data-secondary-label="sinh⁻¹" data-secondary-insert="asinh(">sinh</button>
+          <button class="key key-function second-key" type="button" data-primary-label="cosh" data-primary-insert="cosh(" data-secondary-label="cosh⁻¹" data-secondary-insert="acosh(">cosh</button>
+          <button class="key key-function second-key" type="button" data-primary-label="tanh" data-primary-insert="tanh(" data-secondary-label="tanh⁻¹" data-secondary-insert="atanh(">tanh</button>
+          <button class="key key-function" type="button" data-insert="abs(">abs</button>
+          <button class="key key-function" type="button" data-insert="floor(">floor</button>
+          <button class="key key-function" type="button" data-insert="ceil(">ceil</button>
+          <button class="key key-function" type="button" data-insert="round(">round</button>
+          <button class="key key-operator" type="button" data-insert="*">×</button>
+
+          <button class="key key-number" type="button" data-insert="7">7</button>
+          <button class="key key-number" type="button" data-insert="8">8</button>
+          <button class="key key-number" type="button" data-insert="9">9</button>
+          <button class="key key-function" type="button" data-insert="pi">π</button>
+          <button class="key key-function" type="button" data-insert="e">e</button>
+          <button class="key key-function second-key" type="button" data-primary-label="x²" data-primary-insert="^2" data-secondary-label="x³" data-secondary-insert="^3">x²</button>
+          <button class="key key-function" type="button" data-insert="1/(">1/x</button>
+          <button class="key key-operator" type="button" data-insert="-">−</button>
+
+          <button class="key key-number" type="button" data-insert="4">4</button>
+          <button class="key key-number" type="button" data-insert="5">5</button>
+          <button class="key key-number" type="button" data-insert="6">6</button>
+          <button class="key key-function" type="button" data-insert="E">EE</button>
+          <button class="key key-function" type="button" data-insert="rand()">Rand</button>
+          <button class="key key-function" type="button" data-insert="^">xʸ</button>
+          <button class="key key-function" type="button" data-insert="sign(">sign</button>
+          <button class="key key-operator" type="button" data-insert="+">+</button>
+
+          <button class="key key-number" type="button" data-insert="1">1</button>
+          <button class="key key-number" type="button" data-insert="2">2</button>
+          <button class="key key-number" type="button" data-insert="3">3</button>
+          <button class="key key-number" type="button" data-insert="0">0</button>
+          <button class="key key-number" type="button" data-insert=".">.</button>
+          <button class="key key-function" type="button" data-action="negate">±</button>
+          <button class="key key-function" type="button" data-insert="ans">Ans</button>
+          <button class="key key-equals" type="button" data-action="evaluate">=</button>
+        </div>
+      </div>
+
+      <details class="history-panel">
+        <summary>Calculation history</summary>
+        <div class="history-content">
+          <ol class="history-list" id="history-list"></ol>
+          <p class="history-empty" id="history-empty">No calculations yet.</p>
+          <button class="history-clear" type="button" data-action="clear-history">Clear history</button>
+        </div>
+      </details>
+
+      <p class="calculator-note">Use <strong>mod</strong> for remainders, <strong>%</strong> for percentages, <strong>EE</strong> for scientific notation, and parentheses to control order. Factorials accept non-negative integers up to 170.</p>
+      <p class="visually-hidden" id="calculator-status" role="status" aria-live="polite"></p>
+    </section>
+
+    <noscript><p class="calculator-error">Enable JavaScript to use this calculator.</p></noscript>
+  </main>
+
+  <footer class="site-footer">A browser-based tool by Iago Pinal-Fernandez.</footer>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const normalizeExpression = (expression) => expression
+        .replaceAll("×", "*")
+        .replaceAll("÷", "/")
+        .replace(/[−–]/g, "-")
+        .replaceAll("π", "pi");
+
+      const tokenize = (expression) => {
+        const input = normalizeExpression(expression);
+        const tokens = [];
+        let index = 0;
+
+        while (index < input.length) {
+          const character = input[index];
+
+          if (/\s/.test(character)) {
+            index += 1;
+            continue;
+          }
+
+          const numberMatch = input.slice(index).match(/^(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?/);
+
+          if (numberMatch) {
+            tokens.push({ type: "number", value: Number(numberMatch[0]), position: index });
+            index += numberMatch[0].length;
+            continue;
+          }
+
+          const identifierMatch = input.slice(index).match(/^[A-Za-z_][A-Za-z0-9_]*/);
+
+          if (identifierMatch) {
+            tokens.push({ type: "identifier", value: identifierMatch[0].toLowerCase(), position: index });
+            index += identifierMatch[0].length;
+            continue;
+          }
+
+          if ("+-*/^!%(),".includes(character)) {
+            tokens.push({ type: "operator", value: character, position: index });
+            index += 1;
+            continue;
+          }
+
+          throw new Error(`Unexpected character “${character}” at position ${index + 1}.`);
+        }
+
+        tokens.push({ type: "eof", value: "", position: input.length });
+        return tokens;
+      };
+
+      const factorial = (value) => {
+        if (!Number.isInteger(value) || value < 0 || value > 170) {
+          throw new Error("Factorial requires an integer from 0 to 170.");
+        }
+
+        let result = 1;
+
+        for (let number = 2; number <= value; number += 1) {
+          result *= number;
+        }
+
+        return result;
+      };
+
+      class Parser {
+        constructor(tokens, options) {
+          this.tokens = tokens;
+          this.index = 0;
+          this.angleMode = options.angleMode || "DEG";
+          this.ans = Number.isFinite(options.ans) ? options.ans : 0;
+        }
+
+        current() {
+          return this.tokens[this.index];
+        }
+
+        match(type, value) {
+          const token = this.current();
+
+          if (token.type === type && (value === undefined || token.value === value)) {
+            this.index += 1;
+            return true;
+          }
+
+          return false;
+        }
+
+        expect(type, value) {
+          if (!this.match(type, value)) {
+            const token = this.current();
+            const expected = value === undefined ? type : `“${value}”`;
+            throw new Error(`Expected ${expected} at position ${token.position + 1}.`);
+          }
+        }
+
+        parse() {
+          const value = this.parseAdditive();
+          this.expect("eof");
+          return value;
+        }
+
+        parseAdditive() {
+          let value = this.parseMultiplicative();
+
+          while (true) {
+            if (this.match("operator", "+")) {
+              value += this.parseMultiplicative();
+            } else if (this.match("operator", "-")) {
+              value -= this.parseMultiplicative();
+            } else {
+              return value;
+            }
+          }
+        }
+
+        parseMultiplicative() {
+          let value = this.parseUnary();
+
+          while (true) {
+            if (this.match("operator", "*")) {
+              value *= this.parseUnary();
+            } else if (this.match("operator", "/")) {
+              value /= this.parseUnary();
+            } else if (this.current().type === "identifier" && this.current().value === "mod") {
+              this.index += 1;
+              value %= this.parseUnary();
+            } else if (this.isImplicitMultiplicationStart(this.current())) {
+              value *= this.parseUnary();
+            } else {
+              return value;
+            }
+          }
+        }
+
+        isImplicitMultiplicationStart(token) {
+          return token.type === "number" ||
+            token.type === "identifier" ||
+            (token.type === "operator" && token.value === "(");
+        }
+
+        parseUnary() {
+          if (this.match("operator", "+")) {
+            return this.parseUnary();
+          }
+
+          if (this.match("operator", "-")) {
+            return -this.parseUnary();
+          }
+
+          return this.parsePower();
+        }
+
+        parsePower() {
+          const value = this.parsePostfix();
+
+          if (this.match("operator", "^")) {
+            return Math.pow(value, this.parseUnary());
+          }
+
+          return value;
+        }
+
+        parsePostfix() {
+          let value = this.parsePrimary();
+
+          while (true) {
+            if (this.match("operator", "!")) {
+              value = factorial(value);
+            } else if (this.match("operator", "%")) {
+              value /= 100;
+            } else {
+              return value;
+            }
+          }
+        }
+
+        parsePrimary() {
+          const token = this.current();
+
+          if (this.match("number")) {
+            return token.value;
+          }
+
+          if (this.match("operator", "(")) {
+            const value = this.parseAdditive();
+            this.expect("operator", ")");
+            return value;
+          }
+
+          if (this.match("identifier")) {
+            const name = token.value;
+
+            if (this.match("operator", "(")) {
+              const args = [];
+
+              if (!this.match("operator", ")")) {
+                args.push(this.parseAdditive());
+                this.expect("operator", ")");
+              }
+
+              return this.applyFunction(name, args);
+            }
+
+            if (name === "pi") {
+              return Math.PI;
+            }
+
+            if (name === "e") {
+              return Math.E;
+            }
+
+            if (name === "ans") {
+              return this.ans;
+            }
+
+            throw new Error(`Unknown constant “${name}”.`);
+          }
+
+          throw new Error(`Expected a number, constant, or function at position ${token.position + 1}.`);
+        }
+
+        toRadians(value) {
+          return this.angleMode === "DEG" ? value * Math.PI / 180 : value;
+        }
+
+        fromRadians(value) {
+          return this.angleMode === "DEG" ? value * 180 / Math.PI : value;
+        }
+
+        applyFunction(name, args) {
+          if (name === "rand") {
+            if (args.length !== 0) {
+              throw new Error("rand() does not accept an argument.");
+            }
+
+            return Math.random();
+          }
+
+          if (args.length !== 1) {
+            throw new Error(`${name}() requires one argument.`);
+          }
+
+          const value = args[0];
+          const functions = {
+            sin: () => Math.sin(this.toRadians(value)),
+            cos: () => Math.cos(this.toRadians(value)),
+            tan: () => Math.tan(this.toRadians(value)),
+            asin: () => this.fromRadians(Math.asin(value)),
+            acos: () => this.fromRadians(Math.acos(value)),
+            atan: () => this.fromRadians(Math.atan(value)),
+            sinh: () => Math.sinh(value),
+            cosh: () => Math.cosh(value),
+            tanh: () => Math.tanh(value),
+            asinh: () => Math.asinh(value),
+            acosh: () => Math.acosh(value),
+            atanh: () => Math.atanh(value),
+            ln: () => Math.log(value),
+            log: () => Math.log10(value),
+            exp: () => Math.exp(value),
+            pow10: () => Math.pow(10, value),
+            sqrt: () => Math.sqrt(value),
+            cbrt: () => Math.cbrt(value),
+            abs: () => Math.abs(value),
+            floor: () => Math.floor(value),
+            ceil: () => Math.ceil(value),
+            round: () => Math.round(value),
+            sign: () => Math.sign(value)
+          };
+
+          if (!Object.hasOwn(functions, name)) {
+            throw new Error(`Unknown function “${name}”.`);
+          }
+
+          return functions[name]();
+        }
+      }
+
+      const normalizeResult = (value) => {
+        if (!Number.isFinite(value)) {
+          throw new Error("The result is undefined or outside the real-number domain.");
+        }
+
+        return Number.parseFloat(value.toPrecision(15));
+      };
+
+      const evaluate = (expression, options = {}) => {
+        if (!expression.trim()) {
+          throw new Error("Enter a formula to calculate.");
+        }
+
+        const parser = new Parser(tokenize(expression), options);
+        return normalizeResult(parser.parse());
+      };
+
+      window.ScientificMath = Object.freeze({ evaluate });
+    })();
+  </script>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const formulaInput = document.querySelector("#formula-input");
+      const resultOutput = document.querySelector("#result-output");
+      const errorMessage = document.querySelector("#calculator-error");
+      const statusMessage = document.querySelector("#calculator-status");
+      const controls = document.querySelector("#calculator-controls");
+      const angleButton = document.querySelector("#angle-button");
+      const angleStatus = document.querySelector("#angle-status");
+      const secondButton = document.querySelector("#second-button");
+      const secondKeys = [...document.querySelectorAll(".second-key")];
+      const memoryIndicator = document.querySelector("#memory-indicator");
+      const historyList = document.querySelector("#history-list");
+      const historyEmpty = document.querySelector("#history-empty");
+      let angleMode = "DEG";
+      let secondMode = false;
+      let answer = 0;
+      let memory = 0;
+      let history = [];
+
+      const formatResult = (value) => {
+        const absoluteValue = Math.abs(value);
+
+        if ((absoluteValue >= 1e12 || (absoluteValue > 0 && absoluteValue < 1e-10))) {
+          return value.toExponential(10).replace(/\.?(0+)e/, "e");
+        }
+
+        return new Intl.NumberFormat("en-US", {
+          maximumFractionDigits: 12,
+          useGrouping: true
+        }).format(value);
+      };
+
+      const expressionNumber = (value) => Number.isFinite(value) ? String(value) : "0";
+
+      const showError = (message) => {
+        errorMessage.textContent = message;
+        errorMessage.hidden = false;
+      };
+
+      const clearError = () => {
+        errorMessage.innerHTML = "&nbsp;";
+        errorMessage.hidden = true;
+      };
+
+      const evaluateFormula = (announce = true, addToHistory = true) => {
+        try {
+          const expression = formulaInput.value;
+          const value = window.ScientificMath.evaluate(expression, { angleMode, ans: answer });
+          answer = value;
+          resultOutput.value = formatResult(value);
+          clearError();
+
+          if (addToHistory) {
+            history = [{ expression, value }, ...history].slice(0, 12);
+            renderHistory();
+          }
+
+          if (announce) {
+            statusMessage.textContent = `Result: ${formatResult(value)}`;
+          }
+
+          return value;
+        } catch (error) {
+          showError(error instanceof Error ? error.message : "Unable to calculate this formula.");
+          return null;
+        }
+      };
+
+      const insertText = (text) => {
+        const start = formulaInput.selectionStart ?? formulaInput.value.length;
+        const end = formulaInput.selectionEnd ?? start;
+        formulaInput.setRangeText(text, start, end, "end");
+        formulaInput.focus();
+        clearError();
+      };
+
+      const backspace = () => {
+        const start = formulaInput.selectionStart ?? formulaInput.value.length;
+        const end = formulaInput.selectionEnd ?? start;
+
+        if (start !== end) {
+          formulaInput.setRangeText("", start, end, "end");
+        } else if (start > 0) {
+          formulaInput.setRangeText("", start - 1, start, "end");
+        }
+
+        formulaInput.focus();
+        clearError();
+      };
+
+      const negateFormula = () => {
+        const start = formulaInput.selectionStart ?? 0;
+        const end = formulaInput.selectionEnd ?? formulaInput.value.length;
+        const selected = formulaInput.value.slice(start, end);
+
+        if (selected) {
+          formulaInput.setRangeText(`-(${selected})`, start, end, "end");
+        } else if (formulaInput.value) {
+          formulaInput.value = `-(${formulaInput.value})`;
+          formulaInput.setSelectionRange(formulaInput.value.length, formulaInput.value.length);
+        } else {
+          insertText("-");
+          return;
+        }
+
+        formulaInput.focus();
+        clearError();
+      };
+
+      const toggleSecondMode = () => {
+        secondMode = !secondMode;
+        secondButton.setAttribute("aria-pressed", String(secondMode));
+
+        for (const key of secondKeys) {
+          key.textContent = secondMode ? key.dataset.secondaryLabel : key.dataset.primaryLabel;
+        }
+      };
+
+      const toggleAngleMode = () => {
+        angleMode = angleMode === "DEG" ? "RAD" : "DEG";
+        angleButton.textContent = angleMode;
+        angleButton.setAttribute("aria-pressed", String(angleMode === "RAD"));
+        angleStatus.textContent = angleMode === "DEG" ? "Degrees" : "Radians";
+        statusMessage.textContent = `${angleStatus.textContent} mode selected.`;
+      };
+
+      const updateMemoryIndicator = () => {
+        memoryIndicator.hidden = memory === 0;
+        memoryIndicator.textContent = memory === 0 ? "" : `Memory: ${formatResult(memory)}`;
+      };
+
+      const valueForMemory = () => {
+        if (!formulaInput.value.trim()) {
+          return answer;
+        }
+
+        try {
+          return window.ScientificMath.evaluate(formulaInput.value, { angleMode, ans: answer });
+        } catch {
+          return answer;
+        }
+      };
+
+      const renderHistory = () => {
+        historyList.replaceChildren();
+        historyEmpty.hidden = history.length > 0;
+
+        for (const entry of history) {
+          const item = document.createElement("li");
+          const button = document.createElement("button");
+          const expression = document.createElement("span");
+          const result = document.createElement("span");
+
+          button.type = "button";
+          button.className = "history-entry";
+          expression.className = "history-expression";
+          result.className = "history-result";
+          expression.textContent = entry.expression;
+          result.textContent = formatResult(entry.value);
+          button.append(expression, result);
+          button.addEventListener("click", () => {
+            formulaInput.value = entry.expression;
+            formulaInput.focus();
+            formulaInput.setSelectionRange(formulaInput.value.length, formulaInput.value.length);
+            evaluateFormula(false, false);
+          });
+          item.append(button);
+          historyList.append(item);
+        }
+      };
+
+      const handleAction = (action) => {
+        switch (action) {
+          case "evaluate":
+            evaluateFormula();
+            break;
+          case "clear":
+            formulaInput.value = "";
+            resultOutput.value = "0";
+            clearError();
+            formulaInput.focus();
+            break;
+          case "backspace":
+            backspace();
+            break;
+          case "negate":
+            negateFormula();
+            break;
+          case "second":
+            toggleSecondMode();
+            break;
+          case "angle":
+            toggleAngleMode();
+            break;
+          case "memory-clear":
+            memory = 0;
+            updateMemoryIndicator();
+            break;
+          case "memory-recall":
+            insertText(expressionNumber(memory));
+            break;
+          case "memory-add":
+            memory += valueForMemory();
+            updateMemoryIndicator();
+            break;
+          case "memory-subtract":
+            memory -= valueForMemory();
+            updateMemoryIndicator();
+            break;
+          case "memory-store":
+            memory = valueForMemory();
+            updateMemoryIndicator();
+            break;
+          case "clear-history":
+            history = [];
+            renderHistory();
+            statusMessage.textContent = "Calculation history cleared.";
+            break;
+        }
+      };
+
+      controls.addEventListener("click", (event) => {
+        const key = event.target.closest("button");
+
+        if (!key) {
+          return;
+        }
+
+        if (key.dataset.action) {
+          handleAction(key.dataset.action);
+          return;
+        }
+
+        if (key.classList.contains("second-key")) {
+          insertText(secondMode ? key.dataset.secondaryInsert : key.dataset.primaryInsert);
+          return;
+        }
+
+        if (key.dataset.insert !== undefined) {
+          insertText(key.dataset.insert);
+        }
+      });
+
+      document.addEventListener("click", (event) => {
+        const clearButton = event.target.closest('[data-action="clear-history"]');
+
+        if (clearButton && !controls.contains(clearButton)) {
+          handleAction("clear-history");
+        }
+      });
+
+      formulaInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          evaluateFormula();
+        } else if (event.key === "Escape") {
+          event.preventDefault();
+          handleAction("clear");
+        }
+      });
+
+      formulaInput.addEventListener("input", clearError);
+      updateMemoryIndicator();
+      renderHistory();
+    })();
+  </script>
+</body>
+</html>
